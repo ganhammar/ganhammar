@@ -5,6 +5,7 @@ import styled from 'styled-components';
 
 import useRouter from '../../Hooks/useRouter';
 import Link from '../../Components/Link';
+import Commento from './Commento';
 
 marked.setOptions({
     highlight: (code, lang) => hljs.highlight(lang, code).value,
@@ -26,24 +27,43 @@ const Wrapper = styled.section`
                 text-decoration: none;
             }
         }
+        pre {
+            background-color: #333;
+            padding: 16px;
+            border: 1px solid #111;
+            font-size: 14px;
+            overflow: auto;
+        }
+        code {
+            font-family: "Courier New", Courier, monospace;
+            font-size: 16px;
+            line-height: 1.4em;
+        }
     }
-    pre {
-        background-color: #333;
-        padding: 16px;
-        border: 1px solid #111;
-        font-size: 14px;
-        overflow: auto;
-    }
-    code {
-        font-family: "Courier New", Courier, monospace;
-        font-size: 16px;
-        line-height: 1.4em;
+    .commento-root {
+        * {
+            color: #f9f9f9;
+        }
+        textarea {
+            background-color: #333;
+            border: 1px solid #111;
+        }
+        .commento-logged-container .commento-logged-in-as .commento-name {
+            color: #bbb;
+        }
+        .commento-card .commento-name {
+            color: #888;
+        }
     }
 `;
 
 const StyledLink = styled(Link)`
     color: #888;
     border-bottom-color: #888;
+`;
+
+const StyledCommento = styled(Commento)`
+    margin-top: 40px;
 `;
 
 const Post: FC = () => {
@@ -61,6 +81,7 @@ const Post: FC = () => {
             {!content && <article>Loading...</article>}
             {content && (<article dangerouslySetInnerHTML={{ __html: content }}></article>)}
             <StyledLink to="/">&lt;-- Back</StyledLink>
+            <StyledCommento id={postId} />
         </Wrapper>
     );
 };
