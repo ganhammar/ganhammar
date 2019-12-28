@@ -17,6 +17,9 @@ const Wrapper = styled.div`
   color: #f9f9f9;
   overflow-y: scroll;
   overflow-x: auto;
+  pre {
+    font-family: "Courier New", Courier, monospace;
+  }
 `;
 
 const Content = styled.div`
