@@ -1,0 +1,12 @@
+[
+    {
+        "date": "2020-09-13",
+        "url": "getting-started-with-graphql-helpers-for-ef-core",
+        "title": "Getting started with GraphQL Helpers for EF Core"
+    },
+    {
+        "date": "2019-12-25",
+        "url": "how-to-host-a-asp-net-core-3-mvc-application-as-a-azure-function",
+        "title": "How to host a ASP .NET Core 3.0 MVC Application as a Azure Function"
+    }
+]

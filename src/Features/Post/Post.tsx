@@ -66,10 +66,15 @@ const StyledCommento = styled(Commento)`
     margin-top: 40px;
 `;
 
+const Loading = styled.div`
+    margin: 80px 0;
+    text-align: center;
+`;
+
 const Post: FC = () => {
     const { match: { params: { postId } } } = useRouter();
     const [content, setContent] = useState<string>();
-    const postPath = require(`./Archive/${postId}.md`);
+    const postPath = require(`../../Posts/${postId}.md`);
 
     fetch(postPath)
         .then(response => response.text())
@@ -78,7 +83,7 @@ const Post: FC = () => {
     return (
         <Wrapper>
             <StyledLink to="/">&lt;-- Back</StyledLink>
-            {!content && <article>Loading...</article>}
+            {!content && <Loading>Loading...</Loading>}
             {content && (<article dangerouslySetInnerHTML={{ __html: content }}></article>)}
             <StyledLink to="/">&lt;-- Back</StyledLink>
             <StyledCommento id={postId} />
