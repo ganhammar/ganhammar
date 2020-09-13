@@ -1,0 +1,24 @@
+name: CI/CD
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install, Build & Test
+        run: |
+          npm ci
+          npm test
+        env:
+          CI: true
+  publishWeb:
+    if: github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: tibor19/static-website-deploy@v1
+        with:
+          enabled-static-website: 'true'
+          folder: 'build'
+          connection-string: ${{ secrets.CONNECTION_STRING }}
