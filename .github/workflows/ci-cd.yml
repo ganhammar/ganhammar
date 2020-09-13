@@ -21,7 +21,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
-      - name: npm install and build
+      - name: Install & Build
         run: |
           npm ci
           npm run build
@@ -29,6 +29,7 @@ jobs:
           CI: true
       - uses: tibor19/static-website-deploy@v1
         with:
+          name: Publish
           enabled-static-website: 'true'
           folder: 'build'
           connection-string: ${{ secrets.CONNECTION_STRING }}

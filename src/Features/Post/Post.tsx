@@ -1,9 +1,9 @@
 import React, { FC, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import marked from 'marked';
 import hljs from 'highlight.js';
 import styled from 'styled-components';
 
-import useRouter from '../../Hooks/useRouter';
 import Link from '../../Components/Link';
 import Commento from './Commento';
 
@@ -71,8 +71,12 @@ const Loading = styled.div`
     text-align: center;
 `;
 
+interface ParamTypes {
+    postId: string,
+};
+
 const Post: FC = () => {
-    const { match: { params: { postId } } } = useRouter();
+    const { postId } = useParams<ParamTypes>();
     const [content, setContent] = useState<string>();
     const postPath = require(`../../Posts/${postId}.md`);
 
