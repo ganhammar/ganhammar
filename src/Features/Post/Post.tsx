@@ -1,10 +1,11 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import marked from 'marked';
 import hljs from 'highlight.js';
 import styled from 'styled-components';
 
 import Link from '../../Components/Link';
+import Loading from '../../Components/Loading';
 
 marked.setOptions({
     highlight: (code, lang) => hljs.highlight(lang, code).value,
@@ -46,11 +47,6 @@ const StyledLink = styled(Link)`
     border-bottom-color: #888;
 `;
 
-const Loading = styled.div`
-    margin: 80px 0;
-    text-align: center;
-`;
-
 interface ParamTypes {
     postId: string,
 };
@@ -58,16 +54,28 @@ interface ParamTypes {
 const Post: FC = () => {
     const { postId } = useParams<ParamTypes>();
     const [content, setContent] = useState<string>();
-    const postPath = require(`../../Posts/${postId}.md`);
+    const postPath = `${process.env.REACT_APP_BLOB_CONTAINER_URL as string}/${postId}.md`;
 
-    fetch(postPath)
-        .then(response => response.text())
-        .then(text => setContent(marked(text)));
+    useEffect(() => {
+        const fromSession = sessionStorage.getItem(postId);
+
+        if (!fromSession) {
+            fetch(postPath)
+                .then(response => response.text())
+                .then(text =>
+                {
+                    sessionStorage.setItem(postId, text);
+                    setContent(marked(text));
+                });
+        } else {
+            setContent(marked(fromSession));
+        }
+    }, [postId, postPath]);
 
     return (
         <Wrapper>
             <StyledLink to="/">&lt;-- Back</StyledLink>
-            {!content && <Loading>Loading...</Loading>}
+            {!content && <Loading />}
             {content && (<article dangerouslySetInnerHTML={{ __html: content }}></article>)}
             <StyledLink to="/">&lt;-- Back</StyledLink>
         </Wrapper>
