@@ -16,10 +16,10 @@ const Wrapper = styled.section`
         margin: 0;
     }
     p {
-        margin: 24px 0;
+        margin: 2rem 0;
     }
     article {
-        margin: 40px 0;
+        margin: 2.5rem 0;
         word-wrap: break-word;
         a {
             color: #f9f9f9;
@@ -29,15 +29,12 @@ const Wrapper = styled.section`
         }
         pre {
             background-color: #333;
-            padding: 16px;
-            border: 1px solid #111;
-            font-size: 14px;
+            padding: 1rem;
+            border: 0.063rem solid #111;
             overflow: auto;
         }
         code {
             font-family: "Courier New", Courier, monospace;
-            font-size: 16px;
-            line-height: 1.4em;
         }
     }
 `;

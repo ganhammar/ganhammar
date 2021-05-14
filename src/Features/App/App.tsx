@@ -13,7 +13,6 @@ const Wrapper = styled.div`
   height: 100%;
   background-color: #222;
   font-family: "Courier New", Courier, monospace;
-  font-size: 16px;
   color: #f9f9f9;
   overflow-y: scroll;
   overflow-x: auto;
@@ -23,20 +22,20 @@ const Wrapper = styled.div`
 `;
 
 const Content = styled.div`
-  max-width: 1000px;
+  max-width: 62.5rem;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 1.25rem;
 `;
 
 const StyledLogo = styled(Logo)`
-  padding: 80px 0;
+  padding: 5rem 0;
 `;
 
 const Footer = styled.footer`
-  max-width: 500px;
-  padding: 40px 0 0 0;
-  margin: 80px auto 80px auto;
-  border-top: 1px solid #666;
+  max-width: 31.25rem;
+  padding: 2.5rem 0 0 0;
+  margin: 5rem auto 5rem auto;
+  border-top: 0.063rem solid #666;
   color: #666;
   text-align: center;
 `;

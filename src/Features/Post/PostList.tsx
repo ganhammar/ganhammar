@@ -8,7 +8,7 @@ const List = styled.ul`
   margin: 0;
   padding: 0;
   text-align: center;
-  min-height: 500px;
+  min-height: 31.25rem;
 `;
 
 const Item = styled.li`
@@ -48,10 +48,10 @@ const PostList: FC = () => {
   useEffect(() => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(xml, 'application/xml');
-    var blobs = doc.getElementsByTagName('Blob');
+    const blobs = doc.getElementsByTagName('Blob');
     const parsedPosts : Array<Post> = [];
 
-    for (let i = 0; i < blobs.length; i++)
+    for (let i = blobs.length - 1; i >= 0; i--)
     {
       const blob = blobs[i];
       parsedPosts.push({

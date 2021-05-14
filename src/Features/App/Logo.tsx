@@ -21,19 +21,19 @@ const Header = styled.div`
 const Container = styled.pre`
     margin: 0;
     ${({ size }: HeaderProps) => size === HeaderSizes.XXSmall && css`
-        font-size: 5.5px;
+        font-size: 0.344rem;
     `}
     ${({ size }: HeaderProps) => size === HeaderSizes.XSmall && css`
-        font-size: 6.5px;
+        font-size: 0.406rem;
     `}
     ${({ size }: HeaderProps) => size === HeaderSizes.Small && css`
-        font-size: 8px;
+        font-size: 0.5rem;
     `}
     ${({ size }: HeaderProps) => size === HeaderSizes.Medium && css`
-        font-size: 12px;
+        font-size: 0.75rem;
     `}
     ${({ size }: HeaderProps) => size === HeaderSizes.Large && css`
-        font-size: 16px;
+        font-size: 1rem;
     `}
 `;
 

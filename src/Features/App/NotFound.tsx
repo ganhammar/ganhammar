@@ -13,8 +13,8 @@ const Wrapper = styled.div`
 `;
 
 const Content = styled.pre`
-    margin: 0 0 30px 0;
-    font-size: 30px;
+    margin: 0 0 2rem 0;
+    font-size: 2rem;
 `;
 
 type NotFoundProps = {
