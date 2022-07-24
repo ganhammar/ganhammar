@@ -4,16 +4,37 @@ define((require) => {
     class Scene {
         engine;
         onExit;
+        map;
 
-        constructor(engine, onExit) {
+        constructor(engine, map, onExit) {
             this.engine = engine;
+            this.map = map;
+            console.log(map);
             this.onExit = onExit;
 
-            this.engine.addEntity(new Player(({ isPushingUp, isPushingDown, isPushingLeft, isPushingRight, speed }) => {
-                if (isPushingUp || isPushingDown || isPushingLeft || isPushingRight) {
-                    console.log(`Move world with ${speed}`);
-                }
-            }));
+            this.engine.addEntity(new Player(this.handleMapMove.bind(this)));
+        }
+
+        handleMapMove({ isPushingUp, isPushingDown, isPushingLeft, isPushingRight, speed }) {
+            let x = 0;
+            let y = 0;
+
+            if (isPushingUp) {
+                y -= speed;
+            } else if (isPushingDown) {
+                y += speed;
+            }
+
+            if (isPushingLeft) {
+                x -= speed;
+            } else if (isPushingRight) {
+                x += speed;
+            }
+
+            if (x !== 0 || y !== 0) {
+                this.map.moveBy(x, y);
+                console.log(this.map.position());
+            }
         }
     }
 

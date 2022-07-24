@@ -9,6 +9,7 @@ define((require) => {
 
         acceleration = 1;
         accelerationInterval = 30;
+        minSpeed = 2;
         maxSpeed = 9;
 
         backingSpeed = 2;
@@ -38,10 +39,15 @@ define((require) => {
 
             if (keysDown.ArrowUp || (this.currentSpeed > 0 && !keysDown.ArrowDown)) {
                 if (!keysDown.ArrowUp) {
-                    this.currentSpeed -= this.acceleration;
+                    if (this.currentAccelerationFrame >= this.accelerationInterval) {
+                        this.currentAccelerationFrame = 0;
+                        this.currentSpeed -= this.acceleration * 2;
+                    } else {
+                        this.currentAccelerationFrame += 2;
+                    }
                 } else if (this.currentSpeed < this.maxSpeed) {
                     if (this.currentSpeed === 0) {
-                        this.currentSpeed += this.acceleration;
+                        this.currentSpeed += this.minSpeed;
                     } else if (this.currentAccelerationFrame >= this.accelerationInterval) {
                         this.currentAccelerationFrame = 0;
                         this.currentSpeed = this.currentSpeed + this.acceleration < this.maxSpeed
