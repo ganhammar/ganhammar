@@ -1,4 +1,6 @@
-define(() => {
+define((require) => {
+    const Planet = require('./Object/Planet');
+
     class Map {
         size = 10000;
         squareSize = 10;
@@ -16,6 +18,11 @@ define(() => {
             this.generateVisibleMap();
         }
 
+        minX() { return this.positionX - Math.floor(this.visibleWidth / 2); }
+        minY() { return this.positionY - Math.floor(this.visibleHeight / 2); }
+        maxX() { return this.minX() + this.visibleWidth; }
+        maxY() { return this.minY() + this.visibleHeight; }
+
         moveBy(x, y) {
             let positionX = this.positionX + x;
             let positionY = this.positionY + y;
@@ -32,27 +39,51 @@ define(() => {
                 positionY = this.size;
             }
 
-            this.positionX = positionX;
-            this.positionY = positionY;
-            this.generateVisibleMap();
+            if (this.positionX !== positionX || this.positionY !== positionY) {
+                this.positionX = positionX;
+                this.positionY = positionY;
+                this.generateVisibleMap();
+            }
+        }
+
+        getVisibleObjects() {
+            const objects = [];
+            const minX = this.minX();
+            const minY = this.minY();
+            const maxX = this.maxX();
+            const maxY = this.maxY();
+
+            for (let x = minX; x <= maxX; x++) {
+                for (let y = minY; y <= maxY; y++) {
+                    const obj = this.map[x][y];
+
+                    if (obj && obj.coordinateX === x && obj.coordinateY === y) {
+                        objects.push(obj);
+                    }
+                }
+            }
+
+            return objects;
         }
 
         generateVisibleMap() {
-            const startX = this.positionX - Math.floor(this.visibleWidth / 2);
-            const startY = this.positionY - Math.floor(this.visibleHeight / 2);
-            const endX = startX + this.visibleWidth;
-            const endY = startY + this.visibleHeight;
+            const minX = this.minX();
+            const minY = this.minY();
+            const maxX = this.maxX();
+            const maxY = this.maxY();
 
-            for (let x = startX; x <= endX; x++) {
+            for (let x = minX; x <= maxX; x++) {
                 if (!this.map[x]) {
                     this.map[x] = Array(this.size);
                 }
 
-                for (let y = startY; y <= endY; y++) {
-                    const previousPoint = this.map[x - 1][y - 1];
+                for (let y = minY; y <= maxY; y++) {
+                    const previousPoint = (this.map[x - 1] ?? [])[y - 1];
 
-                    if (Math.floor(Math.random() * 10) === 0) {
-                        this.map[x][y] = 'Thing';
+                    if (!previousPoint && Math.floor(Math.random() * 10) === 0) {
+                        this.map[x][y] = new Planet(x, y, this);
+                    } else if (previousPoint?.isInside(x, y) === true) {
+                        this.map[x][y] = previousPoint;
                     }
                 }
             }

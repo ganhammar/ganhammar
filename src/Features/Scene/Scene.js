@@ -12,6 +12,7 @@ define((require) => {
             this.onExit = onExit;
 
             this.engine.addEntity(new Player(this.handleMapMove.bind(this)));
+            console.log(this.map.getVisibleObjects());
         }
 
         handleMapMove({ isPushingUp, isPushingDown, isPushingLeft, isPushingRight, speed }) {
@@ -32,7 +33,6 @@ define((require) => {
 
             if (x !== 0 || y !== 0) {
                 this.map.moveBy(x, y);
-                console.log(this.map.position());
             }
         }
     }
