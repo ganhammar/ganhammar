@@ -12,7 +12,8 @@ define((require) => {
             this.onExit = onExit;
 
             this.engine.addEntity(new Player(this.handleMapMove.bind(this)));
-            console.log(this.map.getVisibleObjects());
+            this.map.getVisibleObjects()
+                .forEach((obj) => this.engine.addEntity(obj));
         }
 
         handleMapMove({ isPushingUp, isPushingDown, isPushingLeft, isPushingRight, speed }) {

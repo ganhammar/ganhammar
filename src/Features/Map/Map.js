@@ -80,7 +80,7 @@ define((require) => {
                 for (let y = minY; y <= maxY; y++) {
                     const previousPoint = (this.map[x - 1] ?? [])[y - 1];
 
-                    if (!previousPoint && Math.floor(Math.random() * 10) === 0) {
+                    if (!previousPoint && Math.floor(Math.random()) === 0) {
                         this.map[x][y] = new Planet(x, y, this);
                     } else if (previousPoint?.isInside(x, y) === true) {
                         this.map[x][y] = previousPoint;
