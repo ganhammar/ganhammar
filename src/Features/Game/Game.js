@@ -10,7 +10,7 @@ define((require) => {
 
         constructor(gameRoot) {
             this.engine = new Engine(gameRoot, this.run.bind(this));
-            this.map = new Map();
+            this.map = new Map(this.engine.constants);
         }
 
         run() {

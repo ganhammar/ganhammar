@@ -1,23 +1,19 @@
 define(() => {
     class Map {
-        map;
         size = 10000;
+        squareSize = 10;
+        map = Array(this.size);
 
         positionX = this.size / 2;
         positionY = this.size / 2;
 
-        constructor() {
-            this.create();
-        }
+        visibleWidth;
+        visibleHeight;
 
-        create() {
-            const map = [];
-
-            for (let i = 0; i < this.size; i++) {
-                map[i] = Array(this.size);
-            }
-
-            this.map = map;
+        constructor({ width, height }) {
+            this.visibleWidth = width;
+            this.visibleHeight = height;
+            this.generateVisibleMap();
         }
 
         moveBy(x, y) {
@@ -38,6 +34,28 @@ define(() => {
 
             this.positionX = positionX;
             this.positionY = positionY;
+            this.generateVisibleMap();
+        }
+
+        generateVisibleMap() {
+            const startX = this.positionX - Math.floor(this.visibleWidth / 2);
+            const startY = this.positionY - Math.floor(this.visibleHeight / 2);
+            const endX = startX + this.visibleWidth;
+            const endY = startY + this.visibleHeight;
+
+            for (let x = startX; x <= endX; x++) {
+                if (!this.map[x]) {
+                    this.map[x] = Array(this.size);
+                }
+
+                for (let y = startY; y <= endY; y++) {
+                    const previousPoint = this.map[x - 1][y - 1];
+
+                    if (Math.floor(Math.random() * 10) === 0) {
+                        this.map[x][y] = 'Thing';
+                    }
+                }
+            }
         }
 
         position() {

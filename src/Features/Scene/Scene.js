@@ -9,7 +9,6 @@ define((require) => {
         constructor(engine, map, onExit) {
             this.engine = engine;
             this.map = map;
-            console.log(map);
             this.onExit = onExit;
 
             this.engine.addEntity(new Player(this.handleMapMove.bind(this)));
