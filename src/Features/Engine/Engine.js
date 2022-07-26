@@ -46,6 +46,10 @@ define((require) => {
             this.state.entities.push(entity);
         }
 
+        removeEntity(index) {
+            this.state.entities.splice(index, 1);
+        }
+
         clearEntities() {
             this.state.entities = [];
         }
