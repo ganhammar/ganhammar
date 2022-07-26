@@ -34,7 +34,7 @@ define(() => {
 
         render(context) {
             context.beginPath();
-            context.arc(this.positionX, this.positionY, this.radius, 0, 2 * Math.PI, false);
+            context.arc(this.positionX + this.radius, this.positionY + this.radius, this.radius, 0, 2 * Math.PI, false);
             context.stroke();
         }
     }

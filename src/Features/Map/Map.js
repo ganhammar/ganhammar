@@ -48,16 +48,16 @@ define((require) => {
 
         getVisibleObjects() {
             const objects = [];
-            const minX = this.minX();
-            const minY = this.minY();
-            const maxX = this.maxX();
-            const maxY = this.maxY();
+            const minX = Math.floor(this.minX() / this.squareSize);
+            const minY = Math.floor(this.minY() / this.squareSize);
+            const maxX = Math.ceil(this.maxX() / this.squareSize);
+            const maxY = Math.ceil(this.maxY() / this.squareSize);
 
             for (let x = minX; x <= maxX; x++) {
                 for (let y = minY; y <= maxY; y++) {
                     const obj = this.map[x][y];
 
-                    if (obj && obj.coordinateX === x && obj.coordinateY === y) {
+                    if (obj && obj.coordinateX === x * this.squareSize && obj.coordinateY === y * this.squareSize) {
                         objects.push(obj);
                     }
                 }
@@ -67,10 +67,10 @@ define((require) => {
         }
 
         generateVisibleMap() {
-            const minX = this.minX();
-            const minY = this.minY();
-            const maxX = this.maxX();
-            const maxY = this.maxY();
+            const minX = Math.floor(this.minX() / this.squareSize);
+            const minY = Math.floor(this.minY() / this.squareSize);
+            const maxX = Math.ceil(this.maxX() / this.squareSize);
+            const maxY = Math.ceil(this.maxY() / this.squareSize);
 
             for (let x = minX; x <= maxX; x++) {
                 if (!this.map[x]) {
@@ -78,13 +78,28 @@ define((require) => {
                 }
 
                 for (let y = minY; y <= maxY; y++) {
-                    const previousPoint = (this.map[x - 1] ?? [])[y - 1];
+                    const previousPoint = this.map[x][y - 1]; // Directly to the right
+                    const previousPointIsInside = previousPoint?.isInside(x * this.squareSize, y * this.squareSize);
 
-                    if (!previousPoint && Math.floor(Math.random()) === 0) {
-                        this.map[x][y] = new Planet(x, y, this);
-                    } else if (previousPoint?.isInside(x, y) === true) {
-                        this.map[x][y] = previousPoint;
+                    if (Math.floor(Math.random() * 10) !== 0 || previousPointIsInside === true) {
+                        continue;
                     }
+
+                    let planet = new Planet(x * this.squareSize, y * this.squareSize, this);
+                    const possibleIntersections = Math.ceil((planet.radius * 2) / this.squareSize);
+
+                    for (let possibleIntersection = 0; possibleIntersection < possibleIntersections; possibleIntersection++) {
+                        const iy = x + possibleIntersection;
+                        const point = (this.map[x - 1] ?? [])[iy]; // Above
+                        let isInside = point?.isInside((x - 1) * this.squareSize, iy * this.squareSize);
+
+                        if (isInside) {
+                            planet = point;
+                            break;
+                        }
+                    }
+
+                    this.map[x][y] = planet;
                 }
             }
         }
