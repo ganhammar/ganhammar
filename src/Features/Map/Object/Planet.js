@@ -6,21 +6,20 @@ define(() => {
         positionX;
         positionY;
         radius;
+        maxRadius = 200;
+        minRadius = 50;
 
         constructor(coordinateX, coordinateY, map) {
             this.coordinateX = coordinateX;
             this.coordinateY = coordinateY;
             this.map = map;
-            this.radius = Math.floor(Math.random() * 150) + 50;
+            this.radius = Math.floor(Math.random() * (this.maxRadius - this.minRadius)) + this.minRadius;
             this.setPosition();
         }
 
         isInside(x, y) {
-            const pointX = x - this.map.minX();
-            const pointY = y - this.map.minY();
-
-            return this.positionX <= pointX && this.positionX + (this.radius * 2) >= pointX
-                && this.positionY <= pointY && this.positionY + (this.radius * 2) >= pointY;
+            return this.coordinateX <= x && this.coordinateX + (this.radius * 2) >= x
+                && this.coordinateY <= y && this.coordinateY + (this.radius * 2) >= y;
         }
 
         update() {
@@ -40,4 +39,4 @@ define(() => {
     }
 
     return Planet;
-})
+});

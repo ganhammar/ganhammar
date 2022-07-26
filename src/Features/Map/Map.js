@@ -4,11 +4,12 @@ define((require) => {
     class Map {
         size = 10000;
         squareSize = 10;
-        map = Array(this.size);
+        map = {};
 
         positionX = this.size / 2;
         positionY = this.size / 2;
 
+        objectMaxRadius = 200;
         visibleWidth;
         visibleHeight;
 
@@ -48,9 +49,9 @@ define((require) => {
 
         getVisibleObjects() {
             const objects = [];
-            const minX = Math.floor(this.minX() / this.squareSize);
-            const minY = Math.floor(this.minY() / this.squareSize);
+            const minX = Math.floor((this.minX() - this.objectMaxRadius) / this.squareSize);
             const maxX = Math.ceil(this.maxX() / this.squareSize);
+            const minY = Math.floor((this.minY() - this.objectMaxRadius) / this.squareSize);
             const maxY = Math.ceil(this.maxY() / this.squareSize);
 
             for (let x = minX; x <= maxX; x++) {
@@ -67,39 +68,47 @@ define((require) => {
         }
 
         generateVisibleMap() {
-            const minX = Math.floor(this.minX() / this.squareSize);
-            const minY = Math.floor(this.minY() / this.squareSize);
+            const minX = Math.floor((this.minX() - this.objectMaxRadius) / this.squareSize);
             const maxX = Math.ceil(this.maxX() / this.squareSize);
+            const minY = Math.floor((this.minY() - this.objectMaxRadius) / this.squareSize);
             const maxY = Math.ceil(this.maxY() / this.squareSize);
+
+            const addedPlanets = [];
 
             for (let x = minX; x <= maxX; x++) {
                 if (!this.map[x]) {
-                    this.map[x] = Array(this.size);
+                    this.map[x] = {};
                 }
 
                 for (let y = minY; y <= maxY; y++) {
-                    const previousPoint = this.map[x][y - 1]; // Directly to the right
+                    let planet;
+                    let previousPoint = this.map[x][y - 1]; // Directly to the left
+                    const possiblePlanet = new Planet(x * this.squareSize, y * this.squareSize, this);
                     const previousPointIsInside = previousPoint?.isInside(x * this.squareSize, y * this.squareSize);
 
-                    if (Math.floor(Math.random() * 10) !== 0 || previousPointIsInside === true) {
-                        continue;
-                    }
+                    if (previousPointIsInside !== true) {
+                        const possibleIntersections = Math.ceil((possiblePlanet.radius * 2) / this.squareSize);
+    
+                        for (let possibleIntersection = 0; possibleIntersection < possibleIntersections; possibleIntersection++) {
+                            const iy = y + possibleIntersection;
+                            const point = (this.map[x - 1] ?? [])[iy]; // Above
+                            let isInside = point?.isInside((x - 1) * this.squareSize, iy * this.squareSize);
 
-                    let planet = new Planet(x * this.squareSize, y * this.squareSize, this);
-                    const possibleIntersections = Math.ceil((planet.radius * 2) / this.squareSize);
-
-                    for (let possibleIntersection = 0; possibleIntersection < possibleIntersections; possibleIntersection++) {
-                        const iy = x + possibleIntersection;
-                        const point = (this.map[x - 1] ?? [])[iy]; // Above
-                        let isInside = point?.isInside((x - 1) * this.squareSize, iy * this.squareSize);
-
-                        if (isInside) {
-                            planet = point;
-                            break;
+                            if (isInside === true) {
+                                planet = point;
+                                break;
+                            }
                         }
+                    } else {
+                        planet = previousPoint;
                     }
 
-                    this.map[x][y] = planet;
+                    if (planet) {
+                        this.map[x][y] = planet;
+                    } else if (Math.floor(Math.random() * 3000) === 0) {
+                        addedPlanets.push(possiblePlanet);
+                        this.map[x][y] = possiblePlanet;
+                    }
                 }
             }
         }

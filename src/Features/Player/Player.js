@@ -5,7 +5,7 @@ define((require) => {
         positionX;
         positionY;
         rotation = 0;
-        edgePadding = 30;
+        edgePadding = 100;
 
         acceleration = 1;
         accelerationInterval = 30;
