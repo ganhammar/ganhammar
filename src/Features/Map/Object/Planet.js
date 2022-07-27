@@ -22,6 +22,11 @@ define(() => {
                 && this.coordinateY <= y && this.coordinateY + (this.radius * 2) >= y;
         }
 
+        isPositionCollision(x, y) {
+            return x < this.positionX + this.radius * 2 && x > this.positionX
+                && y < this.positionY + this.radius * 2 && y > this.positionY;
+        }
+
         update() {
             this.setPosition();
         }

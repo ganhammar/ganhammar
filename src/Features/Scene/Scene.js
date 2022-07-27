@@ -1,6 +1,5 @@
 define((require) => {
     const Player = require('../Player/Player');
-    const Planet = require('../Map/Object/Planet');
 
     class Scene {
         engine;
@@ -19,10 +18,22 @@ define((require) => {
 
         updateEntities() {
             this.engine.clearEntities();
+            this.engine.addEntity(this);
             this.engine.addEntity(this.player);
             this.map.getVisibleObjects()
                 .forEach((obj) => this.engine.addEntity(obj));
         }
+
+        update() {
+            const isGameOver = this.map.getVisibleObjects()
+                .findIndex(obj => obj.isPositionCollision(this.player.positionX, this.player.positionY)) !== -1;
+
+            if (isGameOver) {
+                console.log('Game Over!');
+            }
+        }
+
+        render() { }
 
         handleMapMove({ isPushingUp, isPushingDown, isPushingLeft, isPushingRight, speed }) {
             let x = 0;

@@ -59,8 +59,9 @@ define((require) => {
                 }
 
                 const phi = (this.rotation - 90) * (Math.PI / 180);
-                newPositionX = this.positionX + Math.round(Math.cos(phi) * this.currentSpeed);
-                newPositionY = this.positionY + Math.round(Math.sin(phi) * this.currentSpeed);
+                // console.log(Math.floor(Math.cos(phi) * this.currentSpeed) - Math.round(Math.cos(phi) * this.currentSpeed));
+                newPositionX = this.positionX + (Math.cos(phi) * this.currentSpeed);
+                newPositionY = this.positionY + (Math.sin(phi) * this.currentSpeed);
             } else if (keysDown.ArrowDown) {
                 newPositionY = this.positionY + 1;
             } else {
