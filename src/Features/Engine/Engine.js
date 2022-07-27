@@ -56,6 +56,9 @@ define((require) => {
 
         render() {
             this.context.clearRect(0, 0, this.constants.width, this.constants.height);
+            this.context.fillStyle = '#222';
+            this.context.fillRect(0, 0, this.constants.width, this.constants.height);
+            this.context.strokeStyle = '#f9f9f9';
 
             if (this.loading === true) {
                 this.loadingIndicator.render(this.context, this.constants);

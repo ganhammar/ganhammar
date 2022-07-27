@@ -33,7 +33,7 @@ define(() => {
         render(context) {
             context.beginPath();
             context.arc(this.positionX, this.positionY, this.radius, 0, 2 * Math.PI, false);
-            context.fillStyle = 'black';
+            context.fillStyle = '#f9f9f9';
             context.globalAlpha = this.opacity / 100;
             context.fill();
             context.globalAlpha = 1;
