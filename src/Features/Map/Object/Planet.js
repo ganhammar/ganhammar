@@ -23,8 +23,10 @@ define(() => {
         }
 
         isPositionCollision(x, y) {
-            return x < this.positionX + this.radius * 2 && x > this.positionX
-                && y < this.positionY + this.radius * 2 && y > this.positionY;
+            const centerX = this.positionX + this.radius;
+            const centerY = this.positionY + this.radius;
+
+            return Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2) < Math.pow(this.radius, 2);
         }
 
         update() {

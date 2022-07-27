@@ -12,7 +12,7 @@ define((require) => {
         objectMaxRadius = 200;
         visibleWidth;
         visibleHeight;
-        objectProbability = 4000;
+        objectProbability = 3000;
 
         constructor({ width, height }) {
             this.visibleWidth = width;
@@ -75,7 +75,6 @@ define((require) => {
             const maxY = Math.ceil(this.maxY() / this.squareSize);
             
             const center = (this.size / 2) / this.squareSize;
-            const offset = (this.objectMaxRadius * 2) / this.squareSize;
 
             for (let x = minX; x <= maxX; x++) {
                 if (!this.map[x]) {
@@ -85,14 +84,17 @@ define((require) => {
                 for (let y = minY; y <= maxY; y++) {
                     if (this.map[x][y] !== undefined) {
                         continue;
-                    } else if (x >= center - offset && x <= center + offset
-                            && y >= center - offset && y <= center + offset) {
-                        this.map[x][y] = null;
-                        continue;
                     }
 
                     const possiblePlanet = new Planet(x * this.squareSize, y * this.squareSize, this);
                     const possibleIntersections = Math.ceil((possiblePlanet.radius * 2) / this.squareSize);
+
+                    if (x >= center - possibleIntersections && x <= center + possibleIntersections
+                        && y >= center - possibleIntersections && y <= center + possibleIntersections) {
+                        this.map[x][y] = null;
+                        continue;
+                    }
+
                     let isInside = false;
 
                     for (let possibleIntersection = -1; possibleIntersection <= possibleIntersections + 1; possibleIntersection++) {

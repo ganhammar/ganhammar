@@ -5,7 +5,11 @@ define((require) => {
         positionX;
         positionY;
         rotation = 0;
-        edgePadding = 200;
+        edgePadding = 300;
+
+        fuelMax = 100;
+        fuel = 66;
+        fuelConsumption = 0.05;
 
         acceleration = 1;
         accelerationInterval = 30;
@@ -59,7 +63,6 @@ define((require) => {
                 }
 
                 const phi = (this.rotation - 90) * (Math.PI / 180);
-                // console.log(Math.floor(Math.cos(phi) * this.currentSpeed) - Math.round(Math.cos(phi) * this.currentSpeed));
                 newPositionX = this.positionX + (Math.cos(phi) * this.currentSpeed);
                 newPositionY = this.positionY + (Math.sin(phi) * this.currentSpeed);
             } else if (keysDown.ArrowDown) {
@@ -87,6 +90,10 @@ define((require) => {
                 isPushingDown = true;
             } else {
                 this.positionY = newPositionY;
+            }
+
+            if (keysDown.ArrowUp) {
+                this.fuel -= this.fuelConsumption;
             }
 
             this.onEdge({
@@ -154,6 +161,13 @@ define((require) => {
             context.stroke(player);
 
             context.restore();
+
+            // Fuel Meter
+            context.fillStyle = '#f9f9f9';
+            context.font = `30px Anton`;
+            context.textAlign = 'right';
+            context.textBaseline = 'top';
+            context.fillText(Math.round(this.fuel), width - 30, 30);
         }
     }
 

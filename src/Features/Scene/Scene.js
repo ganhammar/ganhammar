@@ -25,8 +25,12 @@ define((require) => {
         }
 
         update() {
-            const isGameOver = this.map.getVisibleObjects()
+            let isGameOver = this.map.getVisibleObjects()
                 .findIndex(obj => obj.isPositionCollision(this.player.positionX, this.player.positionY)) !== -1;
+
+            if (!isGameOver) {
+                isGameOver = this.player.fuel <= 0;
+            }
 
             if (isGameOver) {
                 console.log('Game Over!');
