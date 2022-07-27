@@ -3,7 +3,7 @@ define((require) => {
 
     class Map {
         size = 1000000;
-        squareSize = 10;
+        squareSize = 20;
         map = {};
 
         positionX = this.size / 2;
@@ -12,6 +12,7 @@ define((require) => {
         objectMaxRadius = 200;
         visibleWidth;
         visibleHeight;
+        objectProbability = 4000;
 
         constructor({ width, height }) {
             this.visibleWidth = width;
@@ -72,6 +73,9 @@ define((require) => {
             const maxX = Math.ceil(this.maxX() / this.squareSize);
             const minY = Math.floor((this.minY() - (this.objectMaxRadius * 2)) / this.squareSize);
             const maxY = Math.ceil(this.maxY() / this.squareSize);
+            
+            const center = (this.size / 2) / this.squareSize;
+            const offset = (this.objectMaxRadius * 2) / this.squareSize;
 
             for (let x = minX; x <= maxX; x++) {
                 if (!this.map[x]) {
@@ -81,74 +85,45 @@ define((require) => {
                 for (let y = minY; y <= maxY; y++) {
                     if (this.map[x][y] !== undefined) {
                         continue;
+                    } else if (x >= center - offset && x <= center + offset
+                            && y >= center - offset && y <= center + offset) {
+                        this.map[x][y] = null;
+                        continue;
                     }
 
-                    let obj;
                     const possiblePlanet = new Planet(x * this.squareSize, y * this.squareSize, this);
                     const possibleIntersections = Math.ceil((possiblePlanet.radius * 2) / this.squareSize);
+                    let isInside = false;
 
-                    possibleIntersectionLoop:
-                    for (let px = 0; px <= possibleIntersections; px++) {
-                        for (let py = 0; py <= possibleIntersections; py++) {
-                            const above = (this.map[x + px - 1] ?? [])[y + py];
-                            const left = ((this.map[x + px] ?? [])[y + py - 1]);
-                            const below = ((this.map[x + px + 1] ?? [])[y + py]);
-                            const right = ((this.map[x + px] ?? [])[y + py + 1]);
+                    for (let possibleIntersection = -1; possibleIntersection <= possibleIntersections + 1; possibleIntersection++) {
+                        const iy = y + possibleIntersection;
+                        const ix = x + possibleIntersection;
 
-                            const aboveIsInside = above?.isInside((x + px) * this.squareSize, (y + py) * this.squareSize);
-                            const leftIsInside = left?.isInside((x + px) * this.squareSize, (y + py) * this.squareSize);
-                            const belowIsInside = below?.isInside((x + px) * this.squareSize, (y + py) * this.squareSize);
-                            const rightIsInside = right?.isInside((x + px) * this.squareSize, (y + py) * this.squareSize);
+                        const above = (this.map[x - 1] ?? {})[iy]; // Above
+                        const left = (this.map[ix] ?? {})[y - 1] // Left
+                        const below = (this.map[x + possibleIntersections + 1] ?? {})[iy] // Below
+                        const right = (this.map[ix] ?? {})[y + possibleIntersections + 1] // Right
 
-                            if (aboveIsInside === true) {
-                                obj = above;
-                            } else if (leftIsInside === true) {
-                                obj = left;
-                            } else if (rightIsInside === true) {
-                                obj == right;
-                            } else if (belowIsInside === true) {
-                                obj = below;
-                            }
-    
-                            if (obj) {
-                                break possibleIntersectionLoop;
-                            }
+                        isInside = above?.isInside(x * this.squareSize, iy * this.squareSize) === true
+                            || left?.isInside(ix * this.squareSize, y * this.squareSize) === true
+                            || below?.isInside((x + possibleIntersections) * this.squareSize, iy * this.squareSize) === true
+                            || right?.isInside(ix * this.squareSize, (y + possibleIntersections) * this.squareSize) === true;
+
+                        if (isInside) {
+                            break;
                         }
                     }
 
-                    // for (let possibleIntersection = -1; possibleIntersection <= possibleIntersections + 1; possibleIntersection++) {
-                    //     const iy = y + possibleIntersection;
-                    //     const ix = x + possibleIntersection;
+                    if (!isInside && Math.floor(Math.random() * this.objectProbability) === 0) {
+                        for (let ix = 0; ix < possibleIntersections; ix++) {
+                            for (let iy = 0; iy < possibleIntersections; iy++) {
+                                if (!this.map[x + ix]) {
+                                    this.map[x + ix] = {};
+                                }
 
-                    //     const above = (this.map[x - 1] ?? [])[iy]; // Above
-                    //     const left = (this.map[ix] ?? [])[y - 1] // Left
-                    //     const below = (this.map[x + possibleIntersections + 1] ?? [])[iy] // Below
-                    //     const right = (this.map[ix] ?? [])[y + possibleIntersections + 1] // Right
-
-                    //     const aboveIsInside = above?.isInside(x * this.squareSize, iy * this.squareSize)
-                    //     const leftIsInside = left?.isInside(ix * this.squareSize, y * this.squareSize)
-                    //     const belowIsInside = below?.isInside((x + possibleIntersections) * this.squareSize, iy * this.squareSize)
-                    //     const rightIsInside = right?.isInside(ix * this.squareSize, (y + possibleIntersections) * this.squareSize);
-
-                    //     if (aboveIsInside === true) {
-                    //         obj = above;
-                    //     } else if (leftIsInside === true) {
-                    //         obj = left;
-                    //     } else if (rightIsInside === true) {
-                    //         obj == right;
-                    //     } else if (belowIsInside === true) {
-                    //         obj = below;
-                    //     }
-
-                    //     if (obj) {
-                    //         break;
-                    //     }
-                    // }
-
-                    if (obj) {
-                        this.map[x][y] = obj;
-                    } else if (Math.floor(Math.random() * 300) === 0) {
-                        this.map[x][y] = possiblePlanet;
+                                this.map[x + ix][y + iy] = possiblePlanet;
+                            }
+                        }
                     } else {
                         this.map[x][y] = null;
                     }
