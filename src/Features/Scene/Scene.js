@@ -36,8 +36,17 @@ define((require) => {
         }
 
         update() {
+            const topCenterX = this.player.positionX;
+            const topCenterY = this.player.positionY - ((this.player.playerHeight - this.player.thrusterHeight) / 2);
+            const bottomLeftCornerX = this.player.positionX - (this.player.playerWidth / 2);
+            const bottomLeftCornerY = this.player.positionY + (this.player.playerHeight / 2);
+            const bottomRightCornerX = this.player.positionX + (this.player.playerWidth / 2);
+            const bottomRightCornerY = this.player.positionY + (this.player.playerHeight / 2);
+
             let isGameOver = this.map.getVisibleObjects()
-                .findIndex(obj => obj.isPositionCollision(this.player.positionX, this.player.positionY)) !== -1;
+                .findIndex(obj => obj.isPositionCollision(topCenterX, topCenterY)
+                    || obj.isPositionCollision(bottomLeftCornerX, bottomLeftCornerY)
+                    || obj.isPositionCollision(bottomRightCornerX, bottomRightCornerY)) !== -1;
 
             if (!isGameOver) {
                 isGameOver = this.player.fuel <= 0;

@@ -7,17 +7,21 @@ define((require) => {
         rotation = 0;
         edgePadding = 300;
 
+        playerWidth = 32;
+        playerHeight = 48;
+        thrusterHeight = 10;
+
         fuelMax = 100;
         fuel = 67;
-        fuelConsumption = 0.05;
+        fuelConsumption = 0.07;
 
         closeToPlanet;
-        reFuelingSpeed = 0.1;
+        reFuelingSpeed = 0.2;
 
         acceleration = 1;
         accelerationInterval = 30;
         minSpeed = 2;
-        maxSpeed = 9;
+        maxSpeed = 15;
 
         backingSpeed = 2;
 
@@ -166,10 +170,6 @@ define((require) => {
                 return;
             }
 
-            const playerWidth = 32;
-            const playerHeight = 48;
-            const thrusterHeight = 10;
-
             if (!this.positionY && !this.positionX) {
                 this.positionX = width / 2;
                 this.positionY = height / 2;
@@ -178,23 +178,23 @@ define((require) => {
             context.save();
 
             const player = new Path2D();
-            player.moveTo(this.positionX - (playerWidth / 2), this.positionY + ((playerHeight - thrusterHeight) / 2));
-            player.lineTo(this.positionX, this.positionY - ((playerHeight - thrusterHeight) / 2));
-            player.lineTo(this.positionX + (playerWidth / 2), this.positionY + ((playerHeight - thrusterHeight) / 2));
+            player.moveTo(this.positionX - (this.playerWidth / 2), this.positionY + ((this.playerHeight - this.thrusterHeight) / 2));
+            player.lineTo(this.positionX, this.positionY - ((this.playerHeight - this.thrusterHeight) / 2));
+            player.lineTo(this.positionX + (this.playerWidth / 2), this.positionY + ((this.playerHeight - this.thrusterHeight) / 2));
 
             // Right Thruster
-            player.lineTo(this.positionX + (playerWidth / 2) - 6, this.positionY + ((playerHeight - thrusterHeight) / 2));
-            player.lineTo(this.positionX + (playerWidth / 2) - 4, this.positionY + (playerHeight / 2));
-            player.lineTo(this.positionX + (playerWidth / 2) - 12, this.positionY + (playerHeight / 2));
-            player.lineTo(this.positionX + (playerWidth / 2) - 10, this.positionY + ((playerHeight - thrusterHeight) / 2));
+            player.lineTo(this.positionX + (this.playerWidth / 2) - 6, this.positionY + ((this.playerHeight - this.thrusterHeight) / 2));
+            player.lineTo(this.positionX + (this.playerWidth / 2) - 4, this.positionY + (this.playerHeight / 2));
+            player.lineTo(this.positionX + (this.playerWidth / 2) - 12, this.positionY + (this.playerHeight / 2));
+            player.lineTo(this.positionX + (this.playerWidth / 2) - 10, this.positionY + ((this.playerHeight - this.thrusterHeight) / 2));
 
-            player.lineTo(this.positionX - (playerWidth / 2) + 10, this.positionY + ((playerHeight - thrusterHeight) / 2));
+            player.lineTo(this.positionX - (this.playerWidth / 2) + 10, this.positionY + ((this.playerHeight - this.thrusterHeight) / 2));
 
             // Left Thruster
-            player.lineTo(this.positionX - (playerWidth / 2) + 12, this.positionY + (playerHeight / 2));
-            player.lineTo(this.positionX - (playerWidth / 2) + 4, this.positionY + (playerHeight / 2));
-            player.lineTo(this.positionX - (playerWidth / 2) + 6, this.positionY + ((playerHeight - thrusterHeight) / 2));
-            player.lineTo(this.positionX - (playerWidth / 2), this.positionY + ((playerHeight - thrusterHeight) / 2));
+            player.lineTo(this.positionX - (this.playerWidth / 2) + 12, this.positionY + (this.playerHeight / 2));
+            player.lineTo(this.positionX - (this.playerWidth / 2) + 4, this.positionY + (this.playerHeight / 2));
+            player.lineTo(this.positionX - (this.playerWidth / 2) + 6, this.positionY + ((this.playerHeight - this.thrusterHeight) / 2));
+            player.lineTo(this.positionX - (this.playerWidth / 2), this.positionY + ((this.playerHeight - this.thrusterHeight) / 2));
 
             // Flame
             if (keysDown.ArrowUp) {
@@ -210,8 +210,8 @@ define((require) => {
                     player.lineTo(startX + thrusterWidth, startY + flameHeight - 3);
                     player.lineTo(startX + thrusterWidth - thrusterOffset, startY);
                 }
-                drawFlame(this.positionX + (playerWidth / 2) - 12, this.positionY + (playerHeight / 2), 8);
-                drawFlame(this.positionX - (playerWidth / 2) + 4, this.positionY + (playerHeight / 2), 8);
+                drawFlame(this.positionX + (this.playerWidth / 2) - 12, this.positionY + (this.playerHeight / 2), 8);
+                drawFlame(this.positionX - (this.playerWidth / 2) + 4, this.positionY + (this.playerHeight / 2), 8);
             }
 
             // Rotation
