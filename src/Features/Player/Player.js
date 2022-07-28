@@ -8,8 +8,11 @@ define((require) => {
         edgePadding = 300;
 
         fuelMax = 100;
-        fuel = 66;
+        fuel = 67;
         fuelConsumption = 0.05;
+
+        closeToPlanet;
+        reFuelingSpeed = 0.1;
 
         acceleration = 1;
         accelerationInterval = 30;
@@ -21,13 +24,30 @@ define((require) => {
         currentSpeed = 0;
         currentAccelerationFrame = 0;
 
-        onEdge;
+        isGameOver = false;
+        gameOverRadius = 1;
+        maxGameOverRadius = 300;
+        gameOverAlpha = 100;
 
-        constructor(onEdge) {
+        onEdge;
+        onProbe;
+
+        constructor(onEdge, onProbe, onExit) {
             this.onEdge = onEdge;
+            this.onProbe = onProbe;
+            this.onExit = onExit;
         }
 
         update({ width, height }) {
+            if (this.isGameOver) {
+                if (this.gameOverRadius >= this.maxGameOverRadius) {
+                    this.onExit();
+                }
+                this.gameOverRadius += Math.ceil(this.gameOverRadius / 10);
+                this.gameOverAlpha = 100 - (this.gameOverRadius / this.maxGameOverRadius) * 100;
+                return;
+            }
+
             if (keysDown.ArrowLeft) {
                 this.rotation = this.rotation - 1 > 0 ? this.rotation - 2 : 360;
             } else if (keysDown.ArrowRight) {
@@ -96,6 +116,15 @@ define((require) => {
                 this.fuel -= this.fuelConsumption;
             }
 
+            if (keysDown.d && this.closeToPlanet && this.closeToPlanet.probed === false) {
+                this.onProbe(this.closeToPlanet);
+            }
+
+            if (keysDown.e && this.closeToPlanet && this.closeToPlanet.fuel > 0) {
+                this.closeToPlanet.fuel -= this.reFuelingSpeed;
+                this.fuel += this.reFuelingSpeed;
+            }
+
             this.onEdge({
                 isPushingUp,
                 isPushingDown,
@@ -106,6 +135,37 @@ define((require) => {
         }
 
         render(context, { width, height }) {
+            // Fuel Meter
+            context.save();
+
+            // Text
+            context.fillStyle = '#f9f9f9';
+            context.font = `30px Anton`;
+            context.textAlign = 'right';
+            context.textBaseline = 'top';
+            context.fillText(Math.round(this.fuel), width - 30, 30);
+
+            // Drop
+            const dropShadow = new Path2D('M38.489,64.981c-1.657,0-3-1.343-3-3s1.343-3,3-3c5.616,0,10.186-4.567,10.186-10.183c0-1.657,1.343-3,3-3c1.656,0,3,1.343,3,3C54.674,57.721,47.413,64.981,38.489,64.981z');
+            const drop = new Path2D('M38.489,76.977c-15.54,0-28.183-12.643-28.183-28.182c0-14.53,23.185-44.307,25.828-47.654C36.703,0.421,37.571,0,38.488,0c0.917,0,1.785,0.42,2.354,1.141c2.644,3.348,25.828,33.124,25.828,47.654C66.671,64.334,54.029,76.977,38.489,76.977zM38.489,7.917c-7.847,10.409-22.183,31.389-22.183,40.878c0,12.231,9.951,22.182,22.183,22.182s22.183-9.95,22.183-22.182C60.671,39.306,46.335,18.326,38.489,7.917z');
+            drop.addPath(dropShadow);
+            context.translate(width - 105, 26);
+            context.scale(0.38, 0.38);
+            context.fill(drop);
+
+            context.restore();
+
+            if (this.isGameOver) {
+                context.save();
+                context.beginPath();
+                context.arc(this.positionX, this.positionY, this.gameOverRadius, 0, 2 * Math.PI, false);
+                context.globalAlpha = this.gameOverAlpha / 100;
+                context.fillStyle = '#f9f9f9';
+                context.fill();
+                context.restore();
+                return;
+            }
+
             const playerWidth = 32;
             const playerHeight = 48;
             const thrusterHeight = 10;
@@ -162,12 +222,26 @@ define((require) => {
 
             context.restore();
 
-            // Fuel Meter
-            context.fillStyle = '#f9f9f9';
-            context.font = `30px Anton`;
-            context.textAlign = 'right';
-            context.textBaseline = 'top';
-            context.fillText(Math.round(this.fuel), width - 30, 30);
+            // Planet Interaction
+            if (this.closeToPlanet) {
+                context.save();
+    
+                context.fillStyle = '#f9f9f9';
+                context.font = `25px Anton`;
+                context.textAlign = 'middle';
+                context.textBaseline = 'bottom';
+                context.fillText(`Planet ${this.closeToPlanet.coordinateX}.${this.closeToPlanet.coordinateY}`, width / 2, height - 250);
+
+                context.font = `20px Anton`;
+                context.fillText(this.closeToPlanet.probed ? 'Probe Launched' : 'Press "D" To Launch Probe', width / 2, height - 220);
+
+                if (this.closeToPlanet.fuel > 0) {
+                    context.font = `20px Anton`;
+                    context.fillText('Hydrogen Found, Hold Down "E" To Re-Fuel', width / 2, height - 190);
+                }
+
+                context.restore();
+            }
         }
     }
 

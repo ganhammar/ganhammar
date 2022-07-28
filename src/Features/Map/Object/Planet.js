@@ -6,8 +6,11 @@ define(() => {
         positionX;
         positionY;
         radius;
+        atmosphereRadius = 50;
         maxRadius = 200;
         minRadius = 50;
+        fuel = Math.ceil(Math.random() * 20) + 10;
+        probed = false;
 
         constructor(coordinateX, coordinateY, map) {
             this.coordinateX = coordinateX;
@@ -17,16 +20,29 @@ define(() => {
             this.setPosition();
         }
 
+        width() {
+            return (this.radius + this.atmosphereRadius) * 2;
+        }
+
+        centerX() {
+            return this.positionX + this.atmosphereRadius + this.radius;
+        }
+
+        centerY() {
+            return this.positionY + this.atmosphereRadius + this.radius;
+        }
+
         isInside(x, y) {
-            return this.coordinateX <= x && this.coordinateX + (this.radius * 2) >= x
-                && this.coordinateY <= y && this.coordinateY + (this.radius * 2) >= y;
+            return this.coordinateX <= x && this.coordinateX + this.width() >= x
+                && this.coordinateY <= y && this.coordinateY + this.width() >= y;
         }
 
         isPositionCollision(x, y) {
-            const centerX = this.positionX + this.radius;
-            const centerY = this.positionY + this.radius;
+            return Math.pow(x - this.centerX(), 2) + Math.pow(y - this.centerY(), 2) < Math.pow(this.radius, 2);
+        }
 
-            return Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2) < Math.pow(this.radius, 2);
+        isPositionInAtmosphere(x, y) {
+            return Math.pow(x - this.centerX(), 2) + Math.pow(y - this.centerY(), 2) < Math.pow(this.radius + this.atmosphereRadius, 2);
         }
 
         update() {
@@ -39,9 +55,12 @@ define(() => {
         }
 
         render(context) {
+            context.save();
             context.beginPath();
-            context.arc(this.positionX + this.radius, this.positionY + this.radius, this.radius, 0, 2 * Math.PI, false);
+            context.arc(this.centerX(), this.centerY(), this.radius, 0, 2 * Math.PI, false);
+            context.lineWidth = 3;
             context.stroke();
+            context.restore();
         }
     }
 

@@ -87,7 +87,7 @@ define((require) => {
                     }
 
                     const possiblePlanet = new Planet(x * this.squareSize, y * this.squareSize, this);
-                    const possibleIntersections = Math.ceil((possiblePlanet.radius * 2) / this.squareSize);
+                    const possibleIntersections = Math.ceil(possiblePlanet.width() / this.squareSize);
 
                     if (x >= center - possibleIntersections && x <= center + possibleIntersections
                         && y >= center - possibleIntersections && y <= center + possibleIntersections) {
