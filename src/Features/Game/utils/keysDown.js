@@ -1,6 +1,5 @@
 define(() => {
     keysDown = {};
-    onKeyPress = () => { };
 
     document.onkeydown = (event) => {
         if (!this.keysDown[event.key]) {
@@ -12,7 +11,9 @@ define(() => {
         if (this.keysDown[event.key]) {
             this.keysDown[event.key] = false;
         }
-        this.onKeyPress(event.key);
+        if (keysDown.onkeyup) {
+            keysDown.onkeyup(event.key);
+        }
     };
 
     return keysDown;

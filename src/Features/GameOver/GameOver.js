@@ -1,4 +1,6 @@
-define(() => {
+define((require) => {
+    const keysDown = require('../Game/utils/keysDown');
+
     class GameOver {
         score;
         credentials = [undefined, undefined, undefined, undefined, undefined];
@@ -6,14 +8,15 @@ define(() => {
         underscoreAlpha = 100;
         underscoreDirection = 'out';
         pressedChars = [];
+        selectedOption = 'cancel';
 
         constructor(engine, score, onExit) {
             engine.addEntity(this);
             this.score = score;
             this.onExit = onExit;
-            document.onkeyup = (event) => {
-                if (event.key.length === 1 || event.key === 'Backspace') {
-                    this.pressedChars.push(event.key.toUpperCase());
+            keysDown.onkeyup = (key) => {
+                if (key.length === 1 || key === 'Backspace') {
+                    this.pressedChars.push(key.toUpperCase());
                 }
             };
         }
@@ -42,12 +45,18 @@ define(() => {
                     continue;
                 }
                 
-                if (index === -1) {
+                if (index === -1 || this.pressedChars[0].length !== 1) {
                     break;
                 }
 
                 this.credentials[index] = this.pressedChars[0];
                 this.pressedChars.splice(0, 1);
+            }
+
+            if (keysDown.ArrowRight) {
+                this.selectedOption = 'submit';
+            } else if (keysDown.ArrowLeft) {
+                this.selectedOption = 'cancel';
             }
         }
 
@@ -58,11 +67,12 @@ define(() => {
             context.font = '150px Anton';
             context.textBaseline = 'middle';
             context.textAlign = 'center';
-            context.strokeText('GAME OVER', centerX, centerY - 210);
+            context.strokeText('GAME OVER', centerX, centerY - 250);
 
             context.font = '70px Anton';
-            context.strokeText(`YOU FOUND ${this.score} HABITABLE PLANETS`, centerX, centerY - 100);
+            context.strokeText(`YOU FOUND ${this.score} HABITABLE PLANETS`, centerX, centerY - 140);
 
+            // Inputs
             const underscoreWidth = 100;
             const underscoreHeight = 8;
             const underscoreOffset = 20;
@@ -96,6 +106,42 @@ define(() => {
 
             const offset = -(((underscoreWidth + underscoreOffset) * this.credentials.length) / 2) + (underscoreOffset * 3);
             this.credentials.forEach((char, index) => renderCharacter(char, offset + ((underscoreWidth + underscoreOffset) * index)));
+
+            // Buttons
+            context.save();
+            context.font = '70px Anton';
+            context.textBaseline = 'top';
+            context.textAlign = 'left';
+
+            if (this.selectedOption === 'cancel') {
+                context.globalAlpha = 1;
+            } else {
+                context.globalAlpha = 0.3;
+            }
+            context.strokeText('CANCEL', centerX - 290, centerY + 160);
+
+            if (this.selectedOption === 'submit') {
+                context.globalAlpha = 1;
+            } else {
+                context.globalAlpha = 0.3;
+            }
+            context.textAlign = 'right';
+            context.strokeText('SUBMIT', centerX + 290, centerY + 160);
+            context.restore();
+
+            // Selected Arrow
+            context.save();
+            const size = 35;
+            const topX = centerX - 340 + (this.selectedOption === 'cancel' ? 0 : 385);
+            const topY = centerY + 164;
+            const arrow = new Path2D();
+            arrow.moveTo(topX, topY);
+            arrow.lineTo(topX + size, topY + (size / 2));
+            arrow.lineTo(topX, topY + size);
+            arrow.lineTo(topX, topY);
+            context.lineWidth = 2;
+            context.stroke(arrow);
+            context.restore();
         }
     }
 

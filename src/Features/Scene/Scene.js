@@ -15,6 +15,21 @@ define((require) => {
         notices = [];
         showNoticeFor = 5*60;
 
+        introduction = [
+            'Oh, great, your awake!',
+            'As you might remember, new-new-earth failed..',
+            'Resources ran out; droughts, floods and fires..',
+            'But no worries, this time we have learned from our mistakes..',
+            'Instead of moving to one planet, we move to as many as we can!',
+            'That\'s where you come in, you need to scout as many planets as you can',
+            'Move in close to them and send a probe, but don\'t go to close..',
+            'Oh, the ship runs on hydrogen, which is very common, so grab some when you can',
+            'Good luck! The future of humanity lays in your hands!'
+        ];
+        currentIntroductionText = 0;
+        showIntroductionTextFor = 3.5*60;
+        shownCurrentIntroductionTextFor = 0;
+
         constructor(engine, map, onExit) {
             this.engine = engine;
             this.map = map;
@@ -79,9 +94,39 @@ define((require) => {
                     });
                 }
             });
+
+            if (this.currentIntroductionText < this.introduction.length) {
+                if (this.shownCurrentIntroductionTextFor < this.showIntroductionTextFor) {
+                    this.shownCurrentIntroductionTextFor += 1;
+                } else {
+                    this.currentIntroductionText += 1;
+                    this.shownCurrentIntroductionTextFor = 0;
+                }
+            }
         }
 
         render(context, { width }) {
+            // Introduction
+            if (this.currentIntroductionText < this.introduction.length) {
+                context.save();
+
+                context.fillStyle = '#f9f9f9';
+                context.font = `25px Anton`;
+                context.textAlign = 'middle';
+                context.textBaseline = 'bottom';
+
+                if (this.shownCurrentIntroductionTextFor < 30) {
+                    context.globalAlpha = this.shownCurrentIntroductionTextFor / 30;
+                } else if (this.shownCurrentIntroductionTextFor > this.showIntroductionTextFor - 30) {
+                    context.globalAlpha = (this.showIntroductionTextFor - this.shownCurrentIntroductionTextFor) / 30;
+                }
+
+                context.fillText(this.introduction[this.currentIntroductionText], width / 2, 240);
+
+                context.restore();
+            }
+
+            // Notices
             if (this.notices.length > 0) {
                 const { planet, isSuccess, shownFor } = this.notices[0];
 

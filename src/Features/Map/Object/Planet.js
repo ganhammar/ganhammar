@@ -6,7 +6,7 @@ define(() => {
         positionX;
         positionY;
         radius;
-        atmosphereRadius = 50;
+        atmosphereRadius = 90;
         maxRadius = 200;
         minRadius = 50;
         fuel = Math.ceil(Math.random() * 15) + 5;

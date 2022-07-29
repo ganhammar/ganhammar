@@ -14,8 +14,8 @@ define((require) => {
         visibleHeight;
 
         hasGeneratedObject = false;
-        initialProbability = 1000;
-        objectProbability = 4000;
+        initialProbability = 4000;
+        objectProbability = 5000;
 
         constructor({ width, height }) {
             this.visibleWidth = width;
@@ -82,6 +82,10 @@ define((require) => {
             for (let x = minX; x <= maxX; x++) {
                 if (!this.map[x]) {
                     this.map[x] = {};
+                }
+
+                if (this.hasGeneratedObject === false) {
+                    this.initialProbability -= 100;
                 }
 
                 for (let y = minY; y <= maxY; y++) {
