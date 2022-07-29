@@ -56,7 +56,6 @@ define((require) => {
             const centerY = height / 2;
 
             let fontSize = 150 * (this.textScale / 100);
-            context.fillStyle = '#111';
             context.font = `${fontSize}px Anton`;
             context.textBaseline = 'middle';
             context.textAlign = 'center';

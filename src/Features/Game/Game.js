@@ -3,9 +3,10 @@ define((require) => {
     const Splash = require('../Splash/Splash');
     const Map = require('../Map/Map');
     const Scene = require('../Scene/Scene');
+    const GameOver = require('../GameOver/GameOver');
 
     class Game {
-        paused = true;
+        state = 'paused';
         map;
 
         constructor(gameRoot) {
@@ -13,19 +14,29 @@ define((require) => {
             this.map = new Map(this.engine.constants);
         }
 
-        run() {
+        run(score) {
             this.engine.clearEntities();
 
-            if (this.paused === true) {
-                new Splash(this.engine, () => {
-                    this.paused = false;
-                    this.run();
-                });
-            } else {
-                new Scene(this.engine, this.map, () => {
-                    this.paused = true;
-                    this.run();
-                });
+            switch (this.state) {
+                case 'paused':
+                    new Splash(this.engine, () => {
+                        this.state = 'running';
+                        this.run();
+                    });
+                    break;
+                case 'running':
+                    new Scene(this.engine, this.map, (score) => {
+                        this.state = 'gameover';
+                        this.run(score);
+                    });
+                    break;
+                case 'gameover':
+                    this.map = new Map(this.engine.constants);
+                    new GameOver(this.engine, score, () => {
+                        this.state = 'paused';
+                        this.run();
+                    });
+                    break;
             }
         }
     }

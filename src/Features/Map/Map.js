@@ -12,7 +12,10 @@ define((require) => {
         objectMaxRadius = 200;
         visibleWidth;
         visibleHeight;
-        objectProbability = 3000;
+
+        hasGeneratedObject = false;
+        initialProbability = 1000;
+        objectProbability = 4000;
 
         constructor({ width, height }) {
             this.visibleWidth = width;
@@ -116,7 +119,10 @@ define((require) => {
                         }
                     }
 
-                    if (!isInside && Math.floor(Math.random() * this.objectProbability) === 0) {
+                    const probability = this.hasGeneratedObject === false ? this.initialProbability : this.objectProbability;
+                    if (!isInside && Math.floor(Math.random() * probability) === 0) {
+                        this.hasGeneratedObject = true;
+
                         for (let ix = 0; ix < possibleIntersections; ix++) {
                             for (let iy = 0; iy < possibleIntersections; iy++) {
                                 if (!this.map[x + ix]) {
