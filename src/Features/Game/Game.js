@@ -4,6 +4,7 @@ define((require) => {
     const Map = require('../Map/Map');
     const Scene = require('../Scene/Scene');
     const GameOver = require('../GameOver/GameOver');
+    const Highscore = require('../Highscore/Highscore');
 
     class Game {
         state = 'paused';
@@ -32,6 +33,10 @@ define((require) => {
                     });
                     break;
                 case 'highscore':
+                    new Highscore(this.engine, () => {
+                        this.state = 'paused';
+                        this.run();
+                    });
                     break;
                 case 'running':
                     new Scene(this.engine, this.map, (score) => {
