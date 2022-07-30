@@ -13,7 +13,7 @@ define((require) => {
 
         fuelMax = 100;
         fuel = 67;
-        fuelConsumption = 0.07;
+        fuelConsumption = 0.06;
 
         closeToPlanet;
         reFuelingSpeed = 0.2;

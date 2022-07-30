@@ -19,10 +19,19 @@ define((require) => {
 
             switch (this.state) {
                 case 'paused':
-                    new Splash(this.engine, () => {
-                        this.state = 'running';
+                    new Splash(this.engine, (selected) => {
+                        switch (selected) {
+                            case 'highscore':
+                                this.state = 'highscore';
+                                break;
+                            case 'start': default:
+                                this.state = 'running';
+                                break;
+                        }
                         this.run();
                     });
+                    break;
+                case 'highscore':
                     break;
                 case 'running':
                     new Scene(this.engine, this.map, (score) => {

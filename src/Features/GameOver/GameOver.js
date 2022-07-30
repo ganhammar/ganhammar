@@ -9,6 +9,8 @@ define((require) => {
         underscoreDirection = 'out';
         pressedChars = [];
         selectedOption = 'cancel';
+        enterIsDown = false;
+        showInfo = false;
 
         constructor(engine, score, onExit) {
             engine.addEntity(this);
@@ -44,7 +46,7 @@ define((require) => {
                     this.pressedChars.splice(0, 1);
                     continue;
                 }
-                
+
                 if (index === -1 || this.pressedChars[0].length !== 1) {
                     break;
                 }
@@ -57,6 +59,25 @@ define((require) => {
                 this.selectedOption = 'submit';
             } else if (keysDown.ArrowLeft) {
                 this.selectedOption = 'cancel';
+            }
+
+            if (keysDown.Enter) {
+                this.enterIsDown = true;
+            } else if (this.enterIsDown) {
+                switch (this.selectedOption) {
+                    case 'cancel':
+                        this.onExit();
+                        break;
+                    case 'submit':
+                        if (this.credentials.findIndex((char) => char === undefined) !== 0) {
+                            console.log('Submitting score');
+                            this.onExit();
+                        } else {
+                            this.showInfo = true;
+                            this.enterIsDown = false;
+                        }
+                        break;
+                }
             }
         }
 
@@ -142,6 +163,14 @@ define((require) => {
             context.lineWidth = 2;
             context.stroke(arrow);
             context.restore();
+
+            if (this.showInfo) {
+                context.fillStyle = '#f9f9f9';
+                context.font = '20px Anton';
+                context.textAlign = 'right';
+                context.fillText('TYPE NICKNAME IN ORDER TO SUBMIT HIGHSCORE', centerX + 290, centerY + 250);
+                context.restore();
+            }
         }
     }
 
