@@ -12,6 +12,13 @@ define((require) => {
         constructor(engine, onExit) {
             engine.addEntity(this);
             this.onExit = onExit;
+            keysDown.onkeyup = (key) => {
+                if (key === 'ArrowDown') {
+                    this.selectedOption = this.selectedOption === 'start' ? 'highscore' : 'sourceCode';
+                } else if (key === 'ArrowUp') {
+                    this.selectedOption = this.selectedOption === 'sourceCode' ? 'highscore' : 'start';
+                }
+            };
         }
 
         update() {
@@ -31,11 +38,12 @@ define((require) => {
                 }
             }
 
-            if (keysDown.ArrowDown) {
-                this.selectedOption = 'highscore';
-            } else if (keysDown.ArrowUp) {
-                this.selectedOption = 'start';
-            } else if (keysDown.Enter) {
+            if (keysDown.Enter) {
+                if (this.selectedOption === 'sourceCode') {
+                    window.location.href = 'https://github.com/ganhammar/ganhammar';
+                    return;
+                }
+
                 this.isFading = true;
                 this.opacity = 100;
             }
@@ -69,15 +77,35 @@ define((require) => {
             } else if (this.selectedOption !== 'highscore' && (!this.isFading || this.opacity > 30)) {
                 context.globalAlpha = 0.3;
             }
-            context.strokeText('HIGHSCORES', centerX, centerY + 65 - (this.isFading ? 100 - this.textScale : 0));
+            context.strokeText('HIGHSCORES', centerX, centerY + 65 - (this.isFading ? 120 - (this.textScale * 1.2) : 0));
+            context.globalAlpha = 1;
+
+            if (!this.isFading && this.selectedOption === 'sourceCode') {
+                context.globalAlpha = 1;
+            } else if (this.selectedOption !== 'sourceCode' && (!this.isFading || this.opacity > 30)) {
+                context.globalAlpha = 0.3;
+            }
+            context.strokeText('SOURCE CODE', centerX, centerY + 145 - (this.isFading ? 190 - (this.textScale * 1.9) : 0));
             context.globalAlpha = 1;
 
             // Selected Arrow
             if (!this.isFading) {
                 context.save();
                 const size = 35;
-                const topX = centerX - 210;
-                const topY = centerY - 45  + (this.selectedOption === 'start' ? 0 : 80);
+                let topX = centerX - 210;
+                let topY = centerY - 45;
+
+                switch (this.selectedOption) {
+                    case 'highscore':
+                        topY += 80;
+                        topX += 3;
+                        break;
+                    case 'sourceCode':
+                        topY += 160;
+                        topX -= 12;
+                        break;
+                }
+
                 const arrow = new Path2D();
                 arrow.moveTo(topX, topY);
                 arrow.lineTo(topX + size, topY + (size / 2));
