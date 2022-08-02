@@ -1,5 +1,6 @@
 define((require) => {
     const generateCanvas = require('./utils/generateCanvas');
+    const getPixelRatio = require('./utils/getPixelRatio');
     const LoadingIndicator = require('./LoadingIndicator');
 
     class Engine {
@@ -27,6 +28,19 @@ define((require) => {
 
             this.loadFonts();
             this.startGameLoop();
+
+            addEventListener('resize', () => {
+                this.constants.width = window.innerWidth;
+                this.constants.height = window.innerHeight;
+
+                const ratio = getPixelRatio(this.context);
+
+                this.viewport.width = Math.round(this.constants.width * ratio);
+                this.viewport.height = Math.round(this.constants.height * ratio);
+                this.viewport.style.width = this.constants.width + 'px';
+                this.viewport.style.height = this.constants.height + 'px';
+                this.context.setTransform(ratio, 0, 0, ratio, 0, 0);
+            });
         }
 
         loadFonts() {
