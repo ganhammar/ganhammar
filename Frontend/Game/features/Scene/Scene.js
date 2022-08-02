@@ -76,7 +76,7 @@ define((require) => {
 
             this.probes.forEach((planet, index) =>
             {
-                const number = Math.floor(Math.random() * 10000);
+                const number = Math.floor(Math.random() * 5000);
                 if (number <= this.probeSuccessProbability) {
                     this.probes.splice(index, 1);
                     this.score += 1;

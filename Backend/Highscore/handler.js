@@ -61,15 +61,18 @@ app.post('/highscore', async (req, res) => {
 
   if (typeof sessionId !== 'string') {
     res.status(400).json({ error: '\'sessionId\' must be a string' });
+    return;
   } else if (typeof credentials !== 'string') {
     res.status(400).json({ error: '\'credentials\' must be a string' });
+    return;
   } else if (typeof score !== 'number') {
     res.status(400).json({ error: '\'score\' must be a number' });
+    return;
   }
 
   // Verify session
   let params = {
-    TableName: HIGHSCORE_TABLE,
+    TableName: SESSIONS_TABLE,
     Key: {
       id: sessionId,
     },
@@ -81,10 +84,12 @@ app.post('/highscore', async (req, res) => {
       res
         .status(404)
         .json({ error: 'Could not find a session with provided \'sessionId\'' });
+      return;
     }
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 'Could not retreive sessions' });
+    return;
   }
 
   // Save score

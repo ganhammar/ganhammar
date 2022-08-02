@@ -69,7 +69,7 @@ define((require) => {
                 if (!keysDown.ArrowUp) {
                     if (this.currentAccelerationFrame >= this.accelerationInterval) {
                         this.currentAccelerationFrame = 0;
-                        this.currentSpeed -= this.acceleration * 2;
+                        this.currentSpeed -= this.acceleration;
                     } else {
                         this.currentAccelerationFrame += 2;
                     }

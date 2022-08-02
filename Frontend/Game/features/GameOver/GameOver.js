@@ -52,13 +52,20 @@ define((require) => {
                 const index = this.credentials.findIndex((char) => char === undefined);
 
                 if (this.pressedChars[0] === 'BACKSPACE') {
+                    if (index === 1) {
+                        this.selectedOption = 'cancel';
+                    }
+
                     this.credentials[index !== -1 ? index - 1 : this.credentials.length - 1] = undefined;
                     this.pressedChars.splice(0, 1);
                     continue;
                 }
 
                 if (index === -1 || this.pressedChars[0].length !== 1) {
+                    this.pressedChars.splice(0, 1);
                     break;
+                } else if (index === 0 && this.selectedOption === 'cancel') {
+                    this.selectedOption = 'submit';
                 }
 
                 this.credentials[index] = this.pressedChars[0];
@@ -88,6 +95,9 @@ define((require) => {
                                     score: this.score,
                                     sessionId: this.sessionId,
                                 }),
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
                             }).then(() => {
                                 this.onExit();
                             });

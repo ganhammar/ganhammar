@@ -14,7 +14,7 @@ define((require) => {
         visibleHeight;
 
         hasGeneratedObject = false;
-        initialProbability = 4000;
+        initialProbability = 3000;
         objectProbability = 5000;
 
         constructor({ width, height }) {
