@@ -75,16 +75,13 @@ define((require) => {
         }
 
         fetchHighscore() {
-            setTimeout(() => {
-                this.isLoading = false;
-                this.highscores = [
-                    { credentials: 'PM', score: 9 },
-                    { credentials: 'AG', score: 5 },
-                    { credentials: 'BALLS', score: 3 },
-                    { credentials: ':)', score: 2 },
-                    { credentials: ':(', score: 1 },
-                ]
-            }, 1000);
+            fetch(`${document.API_BASE_URL}/highscore`)
+                .then((response) => response.json())
+                .then((highscores) =>
+                {
+                    this.isLoading = false;
+                    this.highscores = highscores;
+                });
         }
     }
 

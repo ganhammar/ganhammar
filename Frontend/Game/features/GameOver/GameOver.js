@@ -1,9 +1,12 @@
 define((require) => {
     const keysDown = require('../Game/utils/keysDown');
+    const LoadingIndicator = require('../Engine/LoadingIndicator');
 
     class GameOver {
         score;
         credentials = [undefined, undefined, undefined, undefined, undefined];
+        loadingIndicator = new LoadingIndicator();
+        isLoading = false;
         onExit;
         underscoreAlpha = 100;
         underscoreDirection = 'out';
@@ -11,10 +14,12 @@ define((require) => {
         selectedOption = 'cancel';
         enterIsDown = false;
         showInfo = false;
+        sessionId;
 
-        constructor(engine, score, onExit) {
+        constructor(engine, score, sessionId, onExit) {
             engine.addEntity(this);
             this.score = score;
+            this.sessionId = sessionId;
             this.onExit = onExit;
             keysDown.onkeyup = (key) => {
                 if (key.length === 1 || key === 'Backspace') {
@@ -24,6 +29,11 @@ define((require) => {
         }
 
         update() {
+            if (this.isLoading) {
+                this.loadingIndicator.update();
+                return;
+            }
+
             if (this.underscoreDirection === 'out') {
                 if (this.underscoreAlpha > 30) {
                     this.underscoreAlpha -= 1;
@@ -70,8 +80,17 @@ define((require) => {
                         break;
                     case 'submit':
                         if (this.credentials.findIndex((char) => char === undefined) !== 0) {
-                            console.log('Submitting score');
-                            this.onExit();
+                            this.isLoading = true;
+                            fetch(`${document.API_BASE_URL}/highscore`, {
+                                method: 'POST',
+                                body: JSON.stringify({
+                                    credentials: this.credentials.join(''),
+                                    score: this.score,
+                                    sessionId: this.sessionId,
+                                }),
+                            }).then(() => {
+                                this.onExit();
+                            });
                         } else {
                             this.showInfo = true;
                             this.enterIsDown = false;
@@ -82,6 +101,11 @@ define((require) => {
         }
 
         render(context, { width, height }) {
+            if (this.isLoading) {
+                this.loadingIndicator.render(context, { width, height });
+                return;
+            }
+
             const centerX = width / 2;
             const centerY = height / 2;
 

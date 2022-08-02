@@ -6,13 +6,28 @@ define((require) => {
     const GameOver = require('../GameOver/GameOver');
     const Highscore = require('../Highscore/Highscore');
 
+    const SESSION_KEY = 'SESSION_ID';
+
     class Game {
         state = 'paused';
+        sessionId;
         map;
 
         constructor(gameRoot) {
             this.engine = new Engine(gameRoot, this.run.bind(this));
             this.map = new Map(this.engine.constants);
+            this.getSessionId();
+        }
+
+        async getSessionId() {
+            if (sessionStorage.getItem(SESSION_KEY)) {
+                this.sessionId = sessionStorage.getItem('SESSION_ID');
+            } else {
+                const response = await fetch(`${document.API_BASE_URL}/sessionId`);
+                const { id: sessionId } = await response.json();
+                sessionStorage.setItem(SESSION_KEY, sessionId);
+                this.sessionId = sessionId;
+            }
         }
 
         run(score) {
@@ -46,7 +61,7 @@ define((require) => {
                     break;
                 case 'gameover':
                     this.map = new Map(this.engine.constants);
-                    new GameOver(this.engine, score, () => {
+                    new GameOver(this.engine, score, this.sessionId, () => {
                         this.state = 'paused';
                         this.run();
                     });

@@ -1,10 +1,14 @@
 {
-  "name": "Highscore",
+  "name": "highscore",
   "version": "1.0.0",
   "description": "",
   "dependencies": {
     "express": "^4.17.1",
     "serverless-http": "^2.7.0",
     "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@serverless/utils": "^6.7.0",
+    "serverless-dynamodb-local": "^0.2.40"
   }
 }

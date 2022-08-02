@@ -2,10 +2,17 @@ service: Highscore
 frameworkVersion: '3'
 
 custom:
-  tableName: 'users-table-${sls:stage}'
+  highscoreTableName: 'highscores-${sls:stage}'
+  sessionTableName: 'sessions-${sls:stage}'
+  dynamodb:
+    start:
+      migrate: true
+    stages:
+      - dev
 
 provider:
   name: aws
+  region: eu-central-1
   runtime: nodejs14.x
   iam:
     role:
@@ -19,9 +26,13 @@ provider:
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
           Resource:
-            - Fn::GetAtt: [ UsersTable, Arn ]
+            - Fn::GetAtt: [ HighscoresTable, Arn ]
+            - Fn::GetAtt: [ SessionsTable, Arn ]
   environment:
-    USERS_TABLE: ${self:custom.tableName}
+    HIGHSCORE_TABLE: ${self:custom.highscoreTableName}
+    SESSIONS_TABLE: ${self:custom.sessionTableName}
+  httpApi:
+    cors: true
 
 functions:
   api:
@@ -31,14 +42,33 @@ functions:
 
 resources:
   Resources:
-    UsersTable:
+    HighscoresTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
-          - AttributeName: userId
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: score
+            AttributeType: 'N'
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: score
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:custom.highscoreTableName}
+    SessionsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
             AttributeType: S
         KeySchema:
-          - AttributeName: userId
+          - AttributeName: id
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:custom.tableName}
+        TableName: ${self:custom.sessionTableName}
+
+plugins:
+  - serverless-dynamodb-local
+  - serverless-offline
