@@ -21,6 +21,15 @@ jobs:
       - name: 'Backend: Deploy'
         working-directory: ./Backend/Highscore
         run: sls deploy -s prod
+      - name: 'Frontend: Install Dependencies'
+        working-directory: ./Frontend/Game
+        run: npm ci
+      - name: 'Frontend: Replace API URL'
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          find: "document.API_BASE_URL = 'http://localhost:3000';"
+          replace: "document.API_BASE_URL = '${{ secrets.HIGHSCORE_API_PROD }}';"
+          regex: false
       - name: 'Frontend: Deploy'
         working-directory: ./Frontend/Game
         run: sls deploy -s prod
