@@ -1,0 +1,31 @@
+service: Game
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-central-1
+
+plugins:
+  - serverless-s3-sync
+  - serverless-offline
+  - serverless-s3-local
+
+custom:
+  s3Sync:
+    endpoint: http://localhost:3001
+    buckets:
+      - bucketName: ganhammar.se
+        localDir: src
+  serverless-offline:
+    lambdaPort: 3003
+
+resources:
+  Resources:
+    GanhammarGame:
+      Type: AWS::S3::Bucket
+      Properties:
+        AccessControl: PublicRead
+        BucketName: ganhammar.se
+        WebsiteConfiguration:
+          IndexDocument: index.html
