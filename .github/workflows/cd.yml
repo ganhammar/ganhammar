@@ -21,9 +21,6 @@ jobs:
       - name: 'Backend: Deploy'
         working-directory: ./Backend/Highscore
         run: sls deploy -s prod
-      - name: 'Frontend: Install Dependencies'
-        working-directory: ./Frontend/Game
-        run: npm ci
       - name: 'Frontend: Deploy'
         working-directory: ./Frontend/Game
         run: sls deploy -s prod
