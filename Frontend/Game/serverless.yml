@@ -26,7 +26,6 @@ resources:
     GanhammarGame:
       Type: AWS::S3::Bucket
       Properties:
-        AccessControl: PublicRead
         BucketName: ${self:custom.gameBucketName}
         WebsiteConfiguration:
           IndexDocument: index.html
