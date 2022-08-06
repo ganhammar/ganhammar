@@ -12,10 +12,18 @@ plugins:
   - serverless-s3-local
 
 custom:
+  gameBucketName: 'ganhammar.se-${sls:stage}'
   s3Sync:
     endpoint: http://localhost:3001
     buckets:
-      - bucketName: 'ganhammar.se-${sls:stage}'
+      - bucketName: ${self:custom.gameBucketName}
         localDir: src
   serverless-offline:
     lambdaPort: 3003
+
+resources:
+  Resources:
+    GanhammarGame:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.gameBucketName}
