@@ -9,6 +9,14 @@ custom:
       migrate: true
     stages:
       - dev
+  customDomain:
+    domainName: api.ganhammar.se
+    basePath: ${sls:stage}
+    stage: ${sls:stage}
+    createRoute53Record: true
+    endpointType: 'regional'
+    apiType: 'http'
+    securityPolicy: tls_1_2
 
 provider:
   name: aws
@@ -72,3 +80,4 @@ resources:
 plugins:
   - serverless-dynamodb-local
   - serverless-offline
+  - serverless-domain-manager

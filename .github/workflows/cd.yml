@@ -18,6 +18,9 @@ jobs:
       - name: 'Backend: Install Dependencies'
         working-directory: ./Backend/Highscore
         run: npm ci
+      - name: 'Backend: Ensure Custom Domain Exists'
+        working-directory: ./Backend/Highscore
+        run: sls create_domain
       - name: 'Backend: Deploy'
         working-directory: ./Backend/Highscore
         run: sls deploy -s prod
