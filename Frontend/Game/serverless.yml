@@ -29,12 +29,12 @@ resources:
       Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
       Properties:
         CloudFrontOriginAccessIdentityConfig:
-          Comment: 'Game Access Policy'
+          Comment: 'Game Access Policy ${sls:stage}'
     GameCachePolicy:
       Type: AWS::CloudFront::CachePolicy
       Properties:
         CachePolicyConfig:
-          Name: 'Game Cache Policy'
+          Name: 'Game Cache Policy ${sls:stage}'
           MinTTL: 1
           DefaultTTL: 86400
           MaxTTL: 31536000
