@@ -29,12 +29,12 @@ resources:
       Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
       Properties:
         CloudFrontOriginAccessIdentityConfig:
-          Comment: 'Game Access Policy ${sls:stage}'
+          Comment: 'GameAccessPolicy-${sls:stage}'
     GameCachePolicy:
       Type: AWS::CloudFront::CachePolicy
       Properties:
         CachePolicyConfig:
-          Name: 'Game Cache Policy ${sls:stage}'
+          Name: 'GameCachePolicy-${sls:stage}'
           MinTTL: 1
           DefaultTTL: 86400
           MaxTTL: 31536000
@@ -55,22 +55,19 @@ resources:
       Type: AWS::S3::BucketPolicy
       Properties:
         Bucket: ${self:custom.gameBucketName}
-        PolicyDocument: |
-          {
-            "Version": "2008-10-17",
-            "Id": "PolicyForCloudFrontPrivateContent",
-            "Statement": [
-                {
-                    "Sid": "1",
-                    "Effect": "Allow",
-                    "Principal": {
-                        "AWS": "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${Fn::GetAtt: [ GameAccessPolicy, Id ]}"
-                    },
-                    "Action": "s3:GetObject",
-                    "Resource": "arn:aws:s3:::${self:custom.gameBucketName}/*"
-                }
-            ]
-          }
+        PolicyDocument:
+          Statement:
+            -
+              Action:
+                - s3:GetObject
+              Effect: Allow
+              Resource: !Sub arn:aws:s3:::${self:custom.gameBucketName}/*
+              Principal:
+                AWS:
+                  - Fn::Join:
+                    - ""
+                    - - "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity "
+                      - Fn::GetAtt: [ GameAccessPolicy, Id ]
     GameDistribution:
       Type: AWS::CloudFront::Distribution
       Properties:
@@ -95,5 +92,5 @@ resources:
           Aliases:
             - !If [IsProduction, 'www.ganhammar.se', '${sls:stage}.ganhammar.se']
           ViewerCertificate:
-            AcmCertificateArn: arn:aws:acm:us-east-1:519157272275:certificate/af61fc26-27ea-4cd5-83b1-09bdae39ab41
+            AcmCertificateArn: arn:aws:acm:us-east-1:519157272275:certificate/a5f5f19b-1f21-4284-a5e1-606ffb8db29e
             SslSupportMethod: sni-only
