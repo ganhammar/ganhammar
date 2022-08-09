@@ -30,6 +30,23 @@ resources:
       Properties:
         CloudFrontOriginAccessIdentityConfig:
           Comment: 'Game Access Policy'
+    GameCachePolicy:
+      Type: AWS::CloudFront::CachePolicy
+      Properties:
+        CachePolicyConfig:
+          Name: 'Game Cache Policy'
+          MinTTL: 1
+          DefaultTTL: 86400
+          MaxTTL: 31536000
+          ParametersInCacheKeyAndForwardedToOrigin:
+            EnableAcceptEncodingGzip: true
+            EnableAcceptEncodingBrotli: true
+            HeadersConfig:
+              HeaderBehavior: none
+            CookiesConfig:
+              CookieBehavior: none
+            QueryStringsConfig:
+              QueryStringBehavior: none
     GameBucket:
       Type: AWS::S3::Bucket
       Properties:
@@ -73,7 +90,8 @@ resources:
           DefaultCacheBehavior:
             TargetOriginId: S3Origin
             ViewerProtocolPolicy: redirect-to-https
-            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+            CachePolicyId:
+              Fn::GetAtt: [ GameCachePolicy, Id ]
           Aliases:
             - !If [IsProduction, 'www.ganhammar.se', '${sls:stage}.ganhammar.se']
           ViewerCertificate:
