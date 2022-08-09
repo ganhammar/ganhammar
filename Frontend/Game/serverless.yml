@@ -22,11 +22,38 @@ custom:
     lambdaPort: 3003
 
 resources:
+  Conditions:
+    IsProduction: !Equals ['${sls:stage}', 'prod']
   Resources:
+    GameAccessPolicy:
+      Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+      Properties:
+        CloudFrontOriginAccessIdentityConfig:
+          Comment: 'Game Access Policy'
     GameBucket:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:custom.gameBucketName}
+    GameBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: ${self:custom.gameBucketName}
+        PolicyDocument: |
+          {
+            "Version": "2008-10-17",
+            "Id": "PolicyForCloudFrontPrivateContent",
+            "Statement": [
+                {
+                    "Sid": "1",
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${Fn::GetAtt: [ GameAccessPolicy, Id ]}"
+                    },
+                    "Action": "s3:GetObject",
+                    "Resource": "arn:aws:s3:::${self:custom.gameBucketName}/*"
+                }
+            ]
+          }
     GameDistribution:
       Type: AWS::CloudFront::Distribution
       Properties:
@@ -38,14 +65,17 @@ resources:
             - Id: S3Origin
               DomainName: '${self:custom.gameBucketName}.s3.${self:provider.region}.amazonaws.com'
               S3OriginConfig:
-                OriginAccessIdentity: origin-access-identity/cloudfront/EAT3VRKE0H9H1
+                OriginAccessIdentity:
+                  Fn::Join:
+                    - ""
+                    - - "origin-access-identity/cloudfront/"
+                      - Fn::GetAtt: [ GameAccessPolicy, Id ]
           DefaultCacheBehavior:
             TargetOriginId: S3Origin
             ViewerProtocolPolicy: redirect-to-https
             CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
           Aliases:
-            - ganhammar.se
-            - www.ganhammar.se
+            - !If [IsProduction, 'www.ganhammar.se', '${sls:stage}.ganhammar.se']
           ViewerCertificate:
             AcmCertificateArn: arn:aws:acm:us-east-1:519157272275:certificate/af61fc26-27ea-4cd5-83b1-09bdae39ab41
             SslSupportMethod: sni-only
