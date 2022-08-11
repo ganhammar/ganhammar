@@ -98,7 +98,7 @@ resources:
       Type: AWS::Route53::RecordSet
       Properties:
         Name: !If [IsProduction, 'www.ganhammar.se', '${sls:stage}.ganhammar.se']
-        HostedZoneName: ganhammar.se
+        HostedZoneName: 'ganhammar.se.'
         Type: CNAME
         TTL: '60'
         ResourceRecords:
