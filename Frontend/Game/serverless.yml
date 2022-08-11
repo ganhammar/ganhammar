@@ -94,3 +94,12 @@ resources:
           ViewerCertificate:
             AcmCertificateArn: arn:aws:acm:us-east-1:519157272275:certificate/a5f5f19b-1f21-4284-a5e1-606ffb8db29e
             SslSupportMethod: sni-only
+    GameDomainRecord:
+      Type: AWS::Route53::RecordSet
+      Properties:
+        Name: !If [IsProduction, 'www.ganhammar.se', '${sls:stage}.ganhammar.se']
+        HostedZoneName: ganhammar.se
+        Type: CNAME
+        TTL: '60'
+        ResourceRecords:
+          - Fn::GetAtt: [ GameDistribution, DomainName ]
