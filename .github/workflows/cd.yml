@@ -11,10 +11,12 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+
       - name: Install Serverless Framework
         run: npm install -g serverless
       - name: Serverless AWS authentication
         run: sls config credentials --provider aws --key ${{ secrets.AWS_ID }} --secret ${{ secrets.AWS_SECRET }}
+
       - name: 'Backend: Install Dependencies'
         working-directory: ./Backend/Highscore
         run: npm ci
@@ -24,15 +26,10 @@ jobs:
       - name: 'Backend: Deploy'
         working-directory: ./Backend/Highscore
         run: sls deploy -s prod
+
       - name: 'Frontend: Install Dependencies'
         working-directory: ./Frontend/Game
         run: npm ci
-      - name: 'Frontend: Replace API URL'
-        uses: jacobtomlinson/gha-find-replace@v2
-        with:
-          find: "document.API_BASE_URL = 'http://localhost:3000';"
-          replace: "document.API_BASE_URL = '${{ secrets.HIGHSCORE_API_PROD }}';"
-          regex: false
       - name: 'Frontend: Deploy'
         working-directory: ./Frontend/Game
         run: sls deploy -s prod

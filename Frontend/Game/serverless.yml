@@ -10,6 +10,7 @@ plugins:
   - serverless-s3-sync
   - serverless-offline
   - serverless-s3-local
+  - serverless-plugin-scripts
 
 custom:
   gameBucketName: 'ganhammar.se-${sls:stage}'
@@ -20,6 +21,10 @@ custom:
         localDir: src
   serverless-offline:
     lambdaPort: 3003
+  scripts:
+    hooks:
+      'before:deploy:deploy': node update-api-url.js http://localhost:3000 https://api.ganhammar.se/${sls:stage}
+      'deploy:finalize': node update-api-url.js https://api.ganhammar.se/${sls:stage} http://localhost:3000
 
 resources:
   Conditions:
