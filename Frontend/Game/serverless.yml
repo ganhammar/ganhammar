@@ -11,8 +11,10 @@ plugins:
   - serverless-offline
   - serverless-s3-local
   - serverless-plugin-scripts
+  - ./get-certificate-arn.js
 
 custom:
+  certificateArn: ${getCertificateArn(us-east-1, ganhammar.se)}
   gameBucketName: 'ganhammar.se-${sls:stage}'
   s3Sync:
     endpoint: http://localhost:3001
@@ -97,7 +99,7 @@ resources:
           Aliases:
             - !If [IsProduction, 'www.ganhammar.se', '${sls:stage}.ganhammar.se']
           ViewerCertificate:
-            AcmCertificateArn: arn:aws:acm:us-east-1:519157272275:certificate/a5f5f19b-1f21-4284-a5e1-606ffb8db29e
+            AcmCertificateArn: ${self:custom.certificateArn}
             SslSupportMethod: sni-only
     GameDomainRecord:
       Type: AWS::Route53::RecordSet
