@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk');
 const express = require('express');
 const serverless = require('serverless-http');
+const cors = require('cors');
 const { v4 } = require('uuid');
 
 const app = express();
@@ -16,6 +17,7 @@ if (process.env.IS_OFFLINE) {
 const dynamoDbClient = new AWS.DynamoDB.DocumentClient(dynamoDbClientParams);
 
 app.use(express.json());
+app.use(cors());
 
 app.get('/highscore', async (req, res) => {
   const params = {
