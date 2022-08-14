@@ -4,6 +4,10 @@ frameworkVersion: '3'
 custom:
   highscoreTableName: 'highscores-${sls:stage}'
   sessionTableName: 'sessions-${sls:stage}'
+  applicationOrigins:
+    dev: 'https://${sls:stage}.ganhammar.se'
+    prod: 'https://www.ganhammar.se'
+  applicationOrigin: ${self:custom.applicationOrigins.${sls:stage}}
   dynamodb:
     start:
       migrate: true
@@ -40,7 +44,16 @@ provider:
     HIGHSCORE_TABLE: ${self:custom.highscoreTableName}
     SESSIONS_TABLE: ${self:custom.sessionTableName}
   httpApi:
-    cors: true
+    cors:
+      allowedOrigins:
+        - ${self:custom.applicationOrigin}
+      allowedHeaders:
+        - Content-Type
+      allowedMethods:
+        - GET
+        - POST
+        - OPTIONS
+      maxAge: 6000
 
 functions:
   api:
