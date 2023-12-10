@@ -27,7 +27,7 @@ jobs:
           aws-region: eu-north-1
           role-to-assume: ${{ secrets.DEPLOY_ROLE }}
           role-session-name: OIDCSession
-      - name: ⎔ Setup node
+      - name: Setup node
         uses: actions/setup-node@v4
         with:
           cache: npm

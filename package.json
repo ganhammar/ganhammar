@@ -7,8 +7,7 @@
     "build": "remix build",
     "dev": "remix dev --manual",
     "start": "remix-serve ./build/index.js",
-    "typecheck": "tsc",
-    "postinstall": "remix-esbuild-override"
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@remix-run/architect": "^2.3.1",
