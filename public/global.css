@@ -1,0 +1,71 @@
+@font-face {
+  font-family: 'fixedsys';
+  src: url('FSEX302.ttf') format('truetype');
+}
+body {
+  background-color: black;
+  color: white;
+  font-size: 20px;
+  margin: 20px;
+}
+ul li, p, h2, a {
+  line-height: 1.4;
+}
+.yellow, h2, a {
+  color: #ffff00;
+}
+h2 {
+  margin: 0;
+}
+* {
+  font-family: fixedsys;
+}
+header {
+  margin: 25px 0;
+}
+header .banner {
+  background-color: #0000ff;
+}
+header .info {
+  width: 600px;
+  margin: 0 auto 5px auto;
+  display: flex;
+  justify-content: space-between;
+}
+h1 {
+  font-size: 7rem;
+  line-height: 6rem;
+  color: white;
+  margin: 0;
+  width: 600px;
+  margin: 0 auto
+}
+main {
+  width: 600px;
+  margin: 0 auto;
+  min-height: 500px;
+}
+footer {
+  margin: 25px 0 0 0;
+  background-color: #0000ff;
+  border-top: 5px solid #ffff00;
+  text-align: center;
+  color: #ffff00;
+  padding: 5px 0;
+}
+@media screen and (max-width: 660px) {
+  h1, main, footer, header .info {
+    width: 100%;
+  }
+}
+@media screen and (max-width: 560px) {
+  h1 {
+    font-size: 5rem;
+  }
+}
+
+@media screen and (max-width: 420px) {
+  h1 {
+    font-size: 4rem;
+  }
+}
