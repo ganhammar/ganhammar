@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "remix build",
-    "dev": "remix dev --manual",
+    "dev": "remix dev --manual -c \"arc sandbox -e testing\"",
     "start": "remix-serve ./build/index.js",
     "typecheck": "tsc",
     "deploy": "arc deploy --production --prune"
