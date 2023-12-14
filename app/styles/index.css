@@ -50,6 +50,12 @@ main h1 {
   line-height: 2.2rem;
   color: #ffff00;
 }
+main p {
+  color: #ffff00;
+}
+main p:nth-child(2n) {
+  color: white;
+}
 footer {
   margin: 25px 0 0 0;
   background-color: #0000ff;
