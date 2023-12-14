@@ -42,8 +42,13 @@ h1 {
 }
 main {
   width: 600px;
-  margin: 0 auto;
+  margin: 40px auto;
   min-height: 500px;
+}
+main h1 {
+  font-size: 2rem;
+  line-height: 2.2rem;
+  color: #ffff00;
 }
 footer {
   margin: 25px 0 0 0;
