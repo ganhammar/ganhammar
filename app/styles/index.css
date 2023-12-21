@@ -34,11 +34,14 @@ header .info {
 }
 h1 {
   font-size: 7rem;
-  line-height: 6rem;
-  color: white;
   margin: 0;
   width: 600px;
   margin: 0 auto
+}
+h1 a {
+  text-decoration: none;
+  line-height: 6rem;
+  color: white;
 }
 main {
   width: 600px;

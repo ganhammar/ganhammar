@@ -17,7 +17,7 @@ export function Layout() {
           <span>{formattedDate}</span>
         </div>
         <div className="banner">
-          <h1>Ganhammar</h1>
+          <h1><a href="/">Ganhammar</a></h1>
         </div>
       </header>
       <main>
