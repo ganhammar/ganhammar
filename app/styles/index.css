@@ -51,9 +51,6 @@ main h1 {
   color: #ffff00;
 }
 main p {
-  color: #ffff00;
-}
-main p:nth-child(2n) {
   color: white;
 }
 footer {
