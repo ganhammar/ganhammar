@@ -3,6 +3,7 @@ import { useLoaderData } from "@remix-run/react";
 import parseFrontMatter from "front-matter";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import vsDark from "../components/vs-dark";
 
 type Post = {
   title: string;
@@ -54,25 +55,28 @@ export const meta: MetaFunction<typeof loader> = ({ data: { title } }) => {
 export default function Post() {
   let post = useLoaderData() as Post;
 
-  return <ReactMarkdown
-    children={post.content}
-    components={{
-      code(props) {
-        const {children, className, node, ...rest} = props
-        const match = /language-(\w+)/.exec(className || '')
-        return match ? (
-          <SyntaxHighlighter
-            {...rest}
-            PreTag="div"
-            children={String(children).replace(/\n$/, '')}
-            language={match[1]}
-          />
-        ) : (
-          <code {...rest} className={className}>
-            {children}
-          </code>
-        )
-      }
-    }}
-  />;
+  return (
+    <ReactMarkdown
+      children={post.content}
+      components={{
+        code(props) {
+          const { children, className, node, ...rest } = props;
+          const match = /language-(\w+)/.exec(className || "");
+          return match ? (
+            <SyntaxHighlighter
+              {...rest}
+              PreTag="div"
+              children={String(children).replace(/\n$/, "")}
+              language={match[1]}
+              style={vsDark}
+            />
+          ) : (
+            <code {...rest} className={className}>
+              {children}
+            </code>
+          );
+        },
+      }}
+    />
+  );
 }
