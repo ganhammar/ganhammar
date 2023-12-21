@@ -2,6 +2,7 @@ import { json, type LoaderFunction, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import parseFrontMatter from "front-matter";
 import ReactMarkdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 
 type Post = {
   title: string;
@@ -19,11 +20,14 @@ const REPOSITORY = "ganhammar/ganhammar-posts";
 
 export const loader: LoaderFunction = async ({ params }) => {
   const token = process.env.API_TOKEN;
-  const response = await fetch(`https://api.github.com/repos/${REPOSITORY}/contents/posts/${params.slug}.mdx`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const response = await fetch(
+    `https://api.github.com/repos/${REPOSITORY}/contents/posts/${params.slug}.mdx`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 
   if (!response.ok) {
     return json({ message: "Not found" }, { status: 404 });
@@ -32,19 +36,43 @@ export const loader: LoaderFunction = async ({ params }) => {
   const data = await response.json();
   const content = Buffer.from(data.content, "base64").toString();
 
-  const { attributes, body } = parseFrontMatter<Attributes>(content, { allowUnsafe: true });
+  const { attributes, body } = parseFrontMatter<Attributes>(content, {
+    allowUnsafe: true,
+  });
 
   return json({ title: attributes.title, content: body });
 };
 
 export const meta: MetaFunction<typeof loader> = ({ data: { title } }) => {
-  return [{
-    title,
-  }];
+  return [
+    {
+      title,
+    },
+  ];
 };
 
 export default function Post() {
   let post = useLoaderData() as Post;
 
-  return <ReactMarkdown>{post.content}</ReactMarkdown>;
+  return <ReactMarkdown
+    children={post.content}
+    components={{
+      code(props) {
+        const {children, className, node, ...rest} = props
+        const match = /language-(\w+)/.exec(className || '')
+        return match ? (
+          <SyntaxHighlighter
+            {...rest}
+            PreTag="div"
+            children={String(children).replace(/\n$/, '')}
+            language={match[1]}
+          />
+        ) : (
+          <code {...rest} className={className}>
+            {children}
+          </code>
+        )
+      }
+    }}
+  />;
 }
