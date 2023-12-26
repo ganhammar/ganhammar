@@ -1,6 +1,10 @@
-import { Outlet } from "@remix-run/react";
+import { Outlet, useLocation } from "@remix-run/react";
 
 export function Layout() {
+  const location = useLocation();
+  const randomNumber = Math.floor(Math.random() * 899) + 101; // random number between 101 and 999
+  const number = location.pathname === '/' ? 100 : randomNumber;
+
   const formattedDate = new Date().toLocaleDateString("sv-SE", {
     weekday: "long",
     year: "numeric",
@@ -12,7 +16,7 @@ export function Layout() {
     <>
       <header>
         <div className="info">
-          <span>100</span>
+          <span>{number}</span>
           <span className="yellow">Ganhammar</span>
           <span>{formattedDate}</span>
         </div>

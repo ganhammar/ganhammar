@@ -1,24 +1,97 @@
-import type { MetaFunction } from "@remix-run/node";
-import { Link } from "@remix-run/react";
+import { json, type LoaderFunction, type MetaFunction } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
+
+const REPOSITORY = "ganhammar/ganhammar-posts";
+
+type ContentsResponse = {
+  path: string;
+  type: string;
+  name: string;
+  download_url: string;
+};
+
+type Post = {
+  id: string;
+  title: string;
+  date: string;
+};
+
+type LoaderResponse = {
+  posts: Post[];
+};
+
+const metadataCache = new Map<string, Post>();
+
+async function fetchAndExtractMetadata(file: ContentsResponse, token: string): Promise<Post> {
+  if (metadataCache.has(file.path)) {
+    return metadataCache.get(file.path)!;
+  }
+
+  const response = await fetch(file.download_url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const content = await response.text();
+  const metadataMatch = content.match(/---\ntitle: (?<title>.*)\nid: (?<id>.*)\ndate: (?<date>.*)\n---/);
+  const metadata = {
+    title: metadataMatch?.groups?.title || '',
+    id: metadataMatch?.groups?.id || '',
+    date: metadataMatch?.groups?.date || '',
+  };
+
+  metadataCache.set(file.path, metadata);
+
+  return metadata;
+}
+
+export const loader: LoaderFunction = async ({ params }) => {
+  const token = process.env.API_TOKEN!;
+  const response = await fetch(
+    `https://api.github.com/repos/${REPOSITORY}/contents/posts`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  if (!response.ok) {
+    return json({ message: "Not found" }, { status: 404 });
+  }
+
+  const data = (await response.json()) as ContentsResponse[];
+  const posts = await Promise.all(data
+    .filter((file) => file.type === "file")
+    .map((file) => fetchAndExtractMetadata(file, token)));
+  
+  return json({ posts });
+};
 
 export const meta: MetaFunction = () => {
   return [
     { title: "Ganhammar" },
-    { name: "description", content: "Hey! I'm Anton Ganhammar. I do dev stuff, here is some random thoughts and experiments." },
+    {
+      name: "description",
+      content:
+        "Hey! I'm Anton Ganhammar. I do dev stuff, here is some random thoughts and experiments.",
+    },
   ];
 };
 
 export default function Index() {
+  const { posts } = useLoaderData() as LoaderResponse;
+
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
       <h2>Hey! I'm Anton Ganhammar.</h2>
       <p>I do dev stuff, here is some random thoughts and experiments:</p>
       <ul>
-        <li>
-          <Link to="/posts/dotnet-8-aot-aws-lambda">
-            Dotnet 8 AOT (ahead-of-time) compilation hosted on AWS Lambda
-          </Link>
-        </li>
+        {posts.map(({ id, date, title }) => (
+          <li key={id}>
+            <Link to={`/posts/${id}`}>{title}</Link>
+            <span className="date">{date}</span>
+          </li>
+        ))}
       </ul>
     </div>
   );
