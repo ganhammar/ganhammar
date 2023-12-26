@@ -78,7 +78,7 @@ ul li {
   justify-content: space-between;
   margin-bottom: 16px;
 }
-ul li a:hover {
+a:hover {
   text-decoration: none;
 }
 @media screen and (max-width: 660px) {

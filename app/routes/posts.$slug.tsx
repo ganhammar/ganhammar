@@ -84,6 +84,11 @@ export default function Post() {
           },
         }}
       />
+      <p>
+        <Link to="/">
+          &lt;- Back
+        </Link>
+      </p>
     </>
   );
 }

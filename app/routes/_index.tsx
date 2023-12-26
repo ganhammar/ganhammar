@@ -14,6 +14,7 @@ type Post = {
   id: string;
   title: string;
   date: string;
+  status: string;
 };
 
 type LoaderResponse = {
@@ -22,7 +23,10 @@ type LoaderResponse = {
 
 const metadataCache = new Map<string, Post>();
 
-async function fetchAndExtractMetadata(file: ContentsResponse, token: string): Promise<Post> {
+async function fetchAndExtractMetadata(
+  file: ContentsResponse,
+  token: string
+): Promise<Post> {
   if (metadataCache.has(file.path)) {
     return metadataCache.get(file.path)!;
   }
@@ -33,11 +37,14 @@ async function fetchAndExtractMetadata(file: ContentsResponse, token: string): P
     },
   });
   const content = await response.text();
-  const metadataMatch = content.match(/---\ntitle: (?<title>.*)\nid: (?<id>.*)\ndate: (?<date>.*)\n---/);
+  const metadataMatch = content.match(
+    /---\ntitle: (?<title>.*)\nid: (?<id>.*)\ndate: (?<date>.*)\nstatus: (?<status>.*)\n---/
+  );
   const metadata = {
-    title: metadataMatch?.groups?.title || '',
-    id: metadataMatch?.groups?.id || '',
-    date: metadataMatch?.groups?.date || '',
+    title: metadataMatch?.groups?.title || "",
+    id: metadataMatch?.groups?.id || "",
+    date: metadataMatch?.groups?.date || "",
+    status: metadataMatch?.groups?.status || "draft",
   };
 
   metadataCache.set(file.path, metadata);
@@ -60,11 +67,13 @@ export const loader: LoaderFunction = async ({ params }) => {
   }
 
   const data = (await response.json()) as ContentsResponse[];
-  const posts = await Promise.all(data
-    .filter((file) => file.type === "file")
-    .map((file) => fetchAndExtractMetadata(file, token)));
-  
-  return json({ posts });
+  const posts = await Promise.all(
+    data
+      .filter((file) => file.type === "file")
+      .map((file) => fetchAndExtractMetadata(file, token))
+  );
+
+  return json({ posts: posts.filter((post) => post.status === "published") });
 };
 
 export const meta: MetaFunction = () => {
