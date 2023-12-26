@@ -3,6 +3,7 @@ import { Link, useLoaderData } from "@remix-run/react";
 import parseFrontMatter from "front-matter";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import remarkGfm from 'remark-gfm'
 import vsDark from "../components/vs-dark";
 
 type Post = {
@@ -64,6 +65,7 @@ export default function Post() {
       </p>
       <ReactMarkdown
         children={post.content}
+        remarkPlugins={[remarkGfm]}
         components={{
           code(props) {
             const { children, className, node, ...rest } = props;

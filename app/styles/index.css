@@ -81,6 +81,13 @@ ul li {
 a:hover {
   text-decoration: none;
 }
+th {
+  text-align: left;
+}
+th, td {
+  padding: 5px;
+  border: 1px solid #333333;
+}
 @media screen and (max-width: 660px) {
   h1, main, footer, header .info {
     width: 100%;
