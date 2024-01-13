@@ -73,7 +73,11 @@ export const loader: LoaderFunction = async ({ params }) => {
       .map((file) => fetchAndExtractMetadata(file, token))
   );
 
-  return json({ posts: posts.filter((post) => post.status === "published") });
+  const sortedPosts = posts
+    .filter((post) => post.status === "published")
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  return json({ posts: sortedPosts });
 };
 
 export const meta: MetaFunction = () => {
