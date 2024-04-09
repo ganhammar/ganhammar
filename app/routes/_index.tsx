@@ -41,7 +41,7 @@ async function fetchAndExtractMetadata(
     /---\ntitle: (?<title>.*)\nid: (?<id>.*)\ndate: (?<date>.*)\nstatus: (?<status>.*)\n---/
   );
   const metadata = {
-    title: metadataMatch?.groups?.title || "",
+    title: metadataMatch?.groups?.title.replace(/^"|"$/g, '') || "",
     id: metadataMatch?.groups?.id || "",
     date: metadataMatch?.groups?.date || "",
     status: metadataMatch?.groups?.status || "draft",
@@ -101,7 +101,7 @@ export default function Index() {
       <ul>
         {posts.map(({ id, date, title }) => (
           <li key={id}>
-            <Link to={`/posts/${id}`}>{title}</Link>
+            <Link className="title" to={`/posts/${id}`}>{title}</Link>
             <span className="date">{date}</span>
           </li>
         ))}

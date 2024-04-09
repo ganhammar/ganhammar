@@ -11,13 +11,13 @@
     "deploy": "arc deploy --production --prune"
   },
   "dependencies": {
-    "@remix-run/architect": "^2.5.0",
-    "@remix-run/css-bundle": "^2.5.0",
-    "@remix-run/node": "^2.5.0",
-    "@remix-run/react": "^2.5.0",
-    "@remix-run/serve": "^2.5.0",
+    "@remix-run/architect": "^2.8.1",
+    "@remix-run/css-bundle": "^2.8.1",
+    "@remix-run/node": "^2.8.1",
+    "@remix-run/react": "^2.8.1",
+    "@remix-run/serve": "^2.8.1",
     "front-matter": "^4.0.2",
-    "isbot": "^4.4.0",
+    "isbot": "^5.1.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-markdown": "^9.0.1",
@@ -25,14 +25,14 @@
     "remark-gfm": "^4.0.0"
   },
   "devDependencies": {
-    "@architect/architect": "^10.16.3",
-    "@remix-run/dev": "^2.5.0",
-    "@remix-run/eslint-config": "^2.5.0",
-    "@types/react": "^18.2.48",
-    "@types/react-dom": "^18.2.18",
+    "@architect/architect": "^11.0.9",
+    "@remix-run/dev": "^2.8.1",
+    "@remix-run/eslint-config": "^2.8.1",
+    "@types/react": "^18.2.75",
+    "@types/react-dom": "^18.2.24",
     "@types/react-syntax-highlighter": "^15.5.11",
-    "eslint": "^8.56.0",
-    "typescript": "^5.1.6"
+    "eslint": "^9.0.0",
+    "typescript": "^5.4.4"
   },
   "engines": {
     "node": ">=18.0.0"

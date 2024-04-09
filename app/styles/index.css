@@ -71,11 +71,16 @@ ul {
 }
 .date {
   color: #ffff00;
+  text-align: right;
+  grid-area: date;
+}
+.title {
+  grid-area: title;
 }
 ul li {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 105px;
+  grid-template-areas: "title date";
   margin-bottom: 16px;
 }
 a:hover {
@@ -91,6 +96,15 @@ th, td {
   padding: 5px;
   border: 1px solid #333333;
 }
+code {
+  background-color: #555555;
+  padding: 0 3px;
+  border-radius: 2px;
+  word-wrap: break-word;
+}
+pre code {
+  background-color: transparent;
+}
 @media screen and (max-width: 660px) {
   h1, main, footer, header .info {
     width: 100%;
@@ -99,6 +113,16 @@ th, td {
 @media screen and (max-width: 560px) {
   h1 {
     font-size: 5rem;
+  }
+  ul li {
+    grid-template-columns: 1fr;
+    grid-template-areas: 
+      "date"
+      "title";
+    margin-bottom: 30px;
+  }
+  .date {
+    text-align: left;
   }
 }
 
