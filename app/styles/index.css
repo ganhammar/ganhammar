@@ -88,6 +88,12 @@ a:hover {
 }
 table {
   margin-bottom: 20px;
+  width: 100%;
+  table-layout: fixed;
+}
+table img {
+  max-width: 100%;
+  height: auto;
 }
 th {
   text-align: left;

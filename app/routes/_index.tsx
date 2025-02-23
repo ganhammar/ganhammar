@@ -1,4 +1,4 @@
-import { json, type LoaderFunction, type MetaFunction } from "@remix-run/node";
+import { type LoaderFunction, type MetaFunction } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 
 const REPOSITORY = "ganhammar/ganhammar-posts";
@@ -63,7 +63,7 @@ export const loader: LoaderFunction = async ({ params }) => {
     }
   );
   if (!response.ok) {
-    return json({ message: "Not found" }, { status: 404 });
+    return Response.json({ message: "Not found" }, { status: 404 });
   }
 
   const data = (await response.json()) as ContentsResponse[];
@@ -77,7 +77,7 @@ export const loader: LoaderFunction = async ({ params }) => {
     .filter((post) => post.status === "published")
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  return json({ posts: sortedPosts });
+  return Response.json({ posts: sortedPosts });
 };
 
 export const meta: MetaFunction = () => {

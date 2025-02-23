@@ -11,23 +11,23 @@
     "deploy": "arc deploy --production --prune"
   },
   "dependencies": {
-    "@remix-run/architect": "^2.8.1",
-    "@remix-run/css-bundle": "^2.8.1",
-    "@remix-run/node": "^2.8.1",
-    "@remix-run/react": "^2.8.1",
-    "@remix-run/serve": "^2.8.1",
+    "@remix-run/architect": "^2.15.3",
+    "@remix-run/css-bundle": "^2.15.3",
+    "@remix-run/node": "^2.15.3",
+    "@remix-run/react": "^2.15.3",
+    "@remix-run/serve": "^2.15.3",
     "front-matter": "^4.0.2",
-    "isbot": "^5.1.4",
+    "isbot": "^5.1.23",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-markdown": "^9.0.3",
+    "react-markdown": "^10.0.0",
     "react-syntax-highlighter": "^15.6.1",
-    "remark-gfm": "^4.0.0"
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@architect/architect": "^11.0.9",
-    "@remix-run/dev": "^2.8.1",
-    "@remix-run/eslint-config": "^2.8.1",
+    "@remix-run/dev": "^2.15.3",
+    "@remix-run/eslint-config": "^2.15.3",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@types/react-syntax-highlighter": "^15.5.13",

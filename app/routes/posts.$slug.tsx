@@ -1,4 +1,4 @@
-import { json, type LoaderFunction, type MetaFunction } from "@remix-run/node";
+import { type LoaderFunction, type MetaFunction } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import parseFrontMatter from "front-matter";
 import ReactMarkdown from "react-markdown";
@@ -32,7 +32,7 @@ export const loader: LoaderFunction = async ({ params }) => {
   );
 
   if (!response.ok) {
-    return json({ message: "Not found" }, { status: 404 });
+    return Response.json({ message: "Not found" }, { status: 404 });
   }
 
   const data = await response.json();
@@ -42,7 +42,7 @@ export const loader: LoaderFunction = async ({ params }) => {
     allowUnsafe: true,
   });
 
-  return json({ title: attributes.title, content: body });
+  return Response.json({ title: attributes.title, content: body });
 };
 
 export const meta: MetaFunction<typeof loader> = ({ data: { title } }) => {
