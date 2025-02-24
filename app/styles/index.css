@@ -91,7 +91,7 @@ table {
   width: 100%;
   table-layout: fixed;
 }
-table img {
+table img, img {
   max-width: 100%;
   height: auto;
 }
