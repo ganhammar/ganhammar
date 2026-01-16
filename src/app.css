@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'fixedsys';
-  src: url('./FSEX302.ttf') format('truetype');
+  src: url('/FSEX302.ttf') format('truetype');
 }
 body {
   background-color: black;
@@ -45,7 +45,7 @@ h1 a {
 }
 main {
   width: 600px;
-  margin: 40px auto;
+  margin: 0 auto 40px auto;
   min-height: 500px;
 }
 main h1 {
@@ -102,6 +102,12 @@ th, td {
   padding: 5px;
   border: 1px solid #333333;
 }
+pre {
+  overflow-x: auto;
+  max-width: 100%;
+  padding: 1em;
+  border-radius: 0.5em;
+}
 code {
   background-color: #555555;
   padding: 0 3px;
@@ -110,6 +116,7 @@ code {
 }
 pre code {
   background-color: transparent;
+  padding: 0;
 }
 @media screen and (max-width: 660px) {
   h1, main, footer, header .info {
@@ -122,7 +129,7 @@ pre code {
   }
   ul li {
     grid-template-columns: 1fr;
-    grid-template-areas: 
+    grid-template-areas:
       "date"
       "title";
     margin-bottom: 30px;

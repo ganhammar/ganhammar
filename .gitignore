@@ -1,10 +1,22 @@
 node_modules
 
-/.cache
+# SvelteKit
+.svelte-kit
 /build
-/public/build
-/server
-preferences.arc
-sam.json
-sam.yaml
+
+# CDK
+infra/dist
+infra/cdk.out
+
+# Environment
 .env
+.env.*
+!.env.example
+
+# IDE
+.idea
+.vscode
+*.swp
+
+# OS
+.DS_Store

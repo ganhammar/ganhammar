@@ -19,24 +19,32 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: eu-north-1
           role-to-assume: ${{ secrets.DEPLOY_ROLE }}
           role-session-name: OIDCSession
+
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          cache: npm
-          cache-dependency-path: ./package.json
           node-version: 20
-      - name: Install
-        run: npm install
-      - name: Build
+
+      - name: Install app dependencies
+        run: npm ci
+
+      - name: Build SvelteKit
         run: npm run build
-      - name: Deploy
+
+      - name: Install CDK dependencies
+        working-directory: infra
+        run: npm ci
+
+      - name: Deploy CDK
         if: github.ref == 'refs/heads/main'
+        working-directory: infra
         run: npm run deploy
         env:
           CI: true
