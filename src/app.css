@@ -105,17 +105,22 @@ th, td {
 pre {
   overflow-x: auto;
   max-width: 100%;
-  padding: 1em;
-  border-radius: 0.5em;
-  --sh-class: #ffff00;
-  --sh-identifier: #ffffff;
-  --sh-sign: #8899ff;
-  --sh-property: #66ccff;
-  --sh-entity: #ffcc66;
-  --sh-jsxliterals: #66cc99;
-  --sh-string: #99ff99;
-  --sh-keyword: #ff6699;
-  --sh-comment: #888888;
+  padding: 1em 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+pre::-webkit-scrollbar {
+  height: 8px;
+}
+pre::-webkit-scrollbar-track {
+  background: #2d2d2d;
+}
+pre::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+pre::-webkit-scrollbar-thumb:hover {
+  background: #777;
 }
 code {
   background-color: #555555;

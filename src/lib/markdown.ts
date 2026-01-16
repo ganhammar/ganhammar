@@ -1,6 +1,9 @@
 import { Marked } from 'marked';
-import { highlight } from 'sugar-high';
-import matter from 'gray-matter';
+import { parse as parseYaml } from 'yaml';
+import { common, createLowlight } from 'lowlight';
+import { toHtml } from 'hast-util-to-html';
+
+const lowlight = createLowlight(common);
 
 export type ParsedPost = {
 	title: string;
@@ -10,6 +13,15 @@ export type ParsedPost = {
 	description: string;
 	content: string;
 };
+
+function parseFrontmatter(raw: string): { data: Record<string, unknown>; content: string } {
+	const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
+	if (!match) {
+		return { data: {}, content: raw };
+	}
+	const data = parseYaml(match[1]) as Record<string, unknown>;
+	return { data, content: match[2] };
+}
 
 function generateExcerpt(markdown: string, length: number = 155): string {
 	return markdown
@@ -24,7 +36,7 @@ function generateExcerpt(markdown: string, length: number = 155): string {
 }
 
 export async function parseMarkdown(raw: string): Promise<ParsedPost> {
-	const { data, content } = matter(raw);
+	const { data, content } = parseFrontmatter(raw);
 
 	const marked = new Marked({
 		async: true,
@@ -34,8 +46,15 @@ export async function parseMarkdown(raw: string): Promise<ParsedPost> {
 	marked.use({
 		renderer: {
 			code({ text, lang }) {
-				const highlighted = highlight(text);
-				return `<pre><code class="sh-code${lang ? ` language-${lang}` : ''}">${highlighted}</code></pre>`;
+				try {
+					const tree = lang && lowlight.registered(lang)
+						? lowlight.highlight(lang, text)
+						: lowlight.highlightAuto(text);
+					const html = toHtml(tree);
+					return `<pre><code class="hljs${lang ? ` language-${lang}` : ''}">${html}</code></pre>`;
+				} catch {
+					return `<pre><code class="hljs${lang ? ` language-${lang}` : ''}">${escapeHtml(text)}</code></pre>`;
+				}
 			},
 			image({ href, title, text }) {
 				// Rewrite relative image URLs to use the asset proxy

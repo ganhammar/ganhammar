@@ -14,9 +14,10 @@
     "deploy": "cdk deploy --require-approval never --app 'npx tsx infra/bin/app.ts'"
   },
   "dependencies": {
-    "gray-matter": "^4.0.3",
+    "hast-util-to-html": "^9.0.5",
+    "lowlight": "^3.3.0",
     "marked": "^17.0.1",
-    "sugar-high": "^0.9.5"
+    "yaml": "^2.8.2"
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "^5.5.1",

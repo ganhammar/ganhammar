@@ -44,6 +44,7 @@
 />
 
 <svelte:head>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/vs2015.min.css" />
 	{@html `<script type="application/ld+json">${articleSchema}</script>`}
 </svelte:head>
 
