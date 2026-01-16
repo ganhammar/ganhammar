@@ -6,9 +6,6 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as cloudfrontOrigins from 'aws-cdk-lib/aws-cloudfront-origins';
-import * as acm from 'aws-cdk-lib/aws-certificatemanager';
-import * as route53 from 'aws-cdk-lib/aws-route53';
-import * as route53Targets from 'aws-cdk-lib/aws-route53-targets';
 import type { Construct } from 'constructs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
@@ -19,21 +16,6 @@ const __dirname = path.dirname(__filename);
 export class GanhammarStack extends cdk.Stack {
 	constructor(scope: Construct, id: string, props?: cdk.StackProps) {
 		super(scope, id, props);
-
-		const domainName = 'ganhammar.se';
-
-		// Look up existing hosted zone
-		const hostedZone = route53.HostedZone.fromLookup(this, 'HostedZone', {
-			domainName
-		});
-
-		// Create certificate in us-east-1 for CloudFront using cross-region support
-		const certificate = new acm.DnsValidatedCertificate(this, 'Certificate', {
-			domainName,
-			subjectAlternativeNames: [`www.${domainName}`],
-			hostedZone,
-			region: 'us-east-1' // CloudFront requires certificates in us-east-1
-		});
 
 		// S3 bucket for static assets
 		const staticBucket = new s3.Bucket(this, 'StaticBucket', {
@@ -133,29 +115,9 @@ export class GanhammarStack extends cdk.Stack {
 					cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED
 				}
 			},
-			domainNames: [domainName, `www.${domainName}`],
-			certificate,
 			priceClass: cloudfront.PriceClass.PRICE_CLASS_100
 		});
 
-		// Route53 A record
-		new route53.ARecord(this, 'ARecord', {
-			zone: hostedZone,
-			target: route53.RecordTarget.fromAlias(
-				new route53Targets.CloudFrontTarget(distribution)
-			)
-		});
-
-		// Route53 A record for www subdomain
-		new route53.ARecord(this, 'WwwARecord', {
-			zone: hostedZone,
-			recordName: 'www',
-			target: route53.RecordTarget.fromAlias(
-				new route53Targets.CloudFrontTarget(distribution)
-			)
-		});
-
-		// Outputs
 		new cdk.CfnOutput(this, 'DistributionDomainName', {
 			value: distribution.distributionDomainName
 		});
