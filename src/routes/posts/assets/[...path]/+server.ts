@@ -5,7 +5,7 @@ import type { RequestHandler } from './$types';
 export const GET: RequestHandler = async ({ params }) => {
 	try {
 		const { content, contentType } = await getAsset(params.path);
-		return new Response(content, {
+		return new Response(new Uint8Array(content), {
 			headers: {
 				'Content-Type': contentType,
 				'Content-Length': content.length.toString(),

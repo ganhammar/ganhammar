@@ -63,15 +63,6 @@
 		padding-bottom: 0.5rem;
 	}
 
-	.about ul {
-		list-style: disc;
-		padding-left: 1.5rem;
-	}
-
-	.about li {
-		margin-bottom: 0.5rem;
-	}
-
 	.about a {
 		color: #ffff00;
 	}

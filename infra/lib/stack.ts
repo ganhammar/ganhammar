@@ -78,9 +78,8 @@ export class GanhammarStack extends cdk.Stack {
 			)
 		});
 
-		// Origin Access Identity for S3
-		const originAccessIdentity = new cloudfront.OriginAccessIdentity(this, 'OAI');
-		staticBucket.grantRead(originAccessIdentity);
+		// S3 origin with Origin Access Control (OAC)
+		const s3Origin = cloudfrontOrigins.S3BucketOrigin.withOriginAccessControl(staticBucket);
 
 		// CloudFront distribution
 		const distribution = new cloudfront.Distribution(this, 'Distribution', {
@@ -95,22 +94,22 @@ export class GanhammarStack extends cdk.Stack {
 			},
 			additionalBehaviors: {
 				'/_app/*': {
-					origin: new cloudfrontOrigins.S3Origin(staticBucket, { originAccessIdentity }),
+					origin: s3Origin,
 					viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
 					cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED
 				},
 				'/*.ttf': {
-					origin: new cloudfrontOrigins.S3Origin(staticBucket, { originAccessIdentity }),
+					origin: s3Origin,
 					viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
 					cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED
 				},
 				'/*.woff': {
-					origin: new cloudfrontOrigins.S3Origin(staticBucket, { originAccessIdentity }),
+					origin: s3Origin,
 					viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
 					cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED
 				},
 				'/*.woff2': {
-					origin: new cloudfrontOrigins.S3Origin(staticBucket, { originAccessIdentity }),
+					origin: s3Origin,
 					viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
 					cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED
 				}
