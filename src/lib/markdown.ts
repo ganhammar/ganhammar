@@ -1,133 +1,6 @@
 import { Marked } from 'marked';
-import { createHighlighter, type Highlighter, type ThemeRegistration } from 'shiki';
+import { highlight } from 'sugar-high';
 import matter from 'gray-matter';
-
-// Custom retro theme based on vs-dark with fixedsys font styling
-const retroTheme: ThemeRegistration = {
-	name: 'retro-dark',
-	type: 'dark',
-	colors: {
-		'editor.background': '#1e1e1e',
-		'editor.foreground': '#c5c8c6'
-	},
-	settings: [
-		{
-			settings: {
-				foreground: '#c5c8c6',
-				background: '#1e1e1e'
-			}
-		},
-		{
-			scope: ['comment', 'punctuation.definition.comment'],
-			settings: {
-				foreground: '#6a9955'
-			}
-		},
-		{
-			scope: ['keyword', 'storage.type', 'storage.modifier'],
-			settings: {
-				foreground: '#569cd6'
-			}
-		},
-		{
-			scope: ['string', 'string.quoted'],
-			settings: {
-				foreground: '#ce9178'
-			}
-		},
-		{
-			scope: ['constant.numeric'],
-			settings: {
-				foreground: '#FF73FD'
-			}
-		},
-		{
-			scope: ['constant.language.boolean'],
-			settings: {
-				foreground: '#99CC99'
-			}
-		},
-		{
-			scope: ['entity.name.function', 'support.function'],
-			settings: {
-				foreground: '#569cd6'
-			}
-		},
-		{
-			scope: ['entity.name.type', 'entity.name.class', 'support.class'],
-			settings: {
-				foreground: '#FFFFB6'
-			}
-		},
-		{
-			scope: ['variable', 'variable.other'],
-			settings: {
-				foreground: '#C6C5FE'
-			}
-		},
-		{
-			scope: ['entity.name.tag', 'punctuation.definition.tag'],
-			settings: {
-				foreground: '#569cd6'
-			}
-		},
-		{
-			scope: ['entity.other.attribute-name'],
-			settings: {
-				foreground: '#9cdcfe'
-			}
-		},
-		{
-			scope: ['constant.character.escape'],
-			settings: {
-				foreground: '#d7ba7d'
-			}
-		},
-		{
-			scope: ['punctuation'],
-			settings: {
-				foreground: '#569cd6'
-			}
-		},
-		{
-			scope: ['meta.property-name', 'support.type.property-name'],
-			settings: {
-				foreground: '#ce9178'
-			}
-		}
-	]
-};
-
-let highlighter: Highlighter | null = null;
-
-async function getHighlighter(): Promise<Highlighter> {
-	if (!highlighter) {
-		highlighter = await createHighlighter({
-			themes: [retroTheme],
-			langs: [
-				'javascript',
-				'typescript',
-				'json',
-				'html',
-				'css',
-				'bash',
-				'shell',
-				'markdown',
-				'yaml',
-				'csharp',
-				'sql',
-				'xml',
-				'jsx',
-				'tsx',
-				'python',
-				'go',
-				'rust',
-				'java'
-			]
-		});
-	}
-	return highlighter;
-}
 
 export type ParsedPost = {
 	title: string;
@@ -152,7 +25,6 @@ function generateExcerpt(markdown: string, length: number = 155): string {
 
 export async function parseMarkdown(raw: string): Promise<ParsedPost> {
 	const { data, content } = matter(raw);
-	const hl = await getHighlighter();
 
 	const marked = new Marked({
 		async: true,
@@ -162,17 +34,8 @@ export async function parseMarkdown(raw: string): Promise<ParsedPost> {
 	marked.use({
 		renderer: {
 			code({ text, lang }) {
-				const language = lang || 'text';
-				try {
-					const html = hl.codeToHtml(text, {
-						lang: language,
-						theme: 'retro-dark'
-					});
-					return html;
-				} catch {
-					// Fallback for unsupported languages
-					return `<pre><code class="language-${language}">${escapeHtml(text)}</code></pre>`;
-				}
+				const highlighted = highlight(text);
+				return `<pre><code class="sh-code${lang ? ` language-${lang}` : ''}">${highlighted}</code></pre>`;
 			},
 			image({ href, title, text }) {
 				// Rewrite relative image URLs to use the asset proxy
