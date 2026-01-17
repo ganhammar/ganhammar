@@ -62,7 +62,7 @@
 			<span class="separator">·</span>
 			<a href="https://github.com/ganhammar" target="_blank" rel="noopener">GitHub</a>
 		</div>
-		<div class="copyright">Copyright &copy; 2023-{currentYear} Anton Ganhammar</div>
+		<div class="copyright">Copyright &copy; {currentYear} Anton Ganhammar</div>
 	</div>
 </footer>
 
@@ -110,6 +110,7 @@
 		display: flex;
 		gap: 0.75rem;
 		justify-content: center;
+		align-items: center;
 		margin-bottom: 0.5rem;
 	}
 
