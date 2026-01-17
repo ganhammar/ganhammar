@@ -105,7 +105,7 @@ th, td {
 pre {
   overflow-x: auto;
   max-width: 100%;
-  padding: 1em 0;
+  padding: 0;
   margin-left: 0;
   margin-right: 0;
 }

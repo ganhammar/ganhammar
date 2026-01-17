@@ -20,7 +20,6 @@ export class GanhammarStack extends cdk.Stack {
 		// S3 bucket for static assets
 		const staticBucket = new s3.Bucket(this, 'StaticBucket', {
 			removalPolicy: cdk.RemovalPolicy.DESTROY,
-			autoDeleteObjects: true,
 			blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL
 		});
 
