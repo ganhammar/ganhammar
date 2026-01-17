@@ -34,7 +34,6 @@ export class GanhammarStack extends cdk.Stack {
 		new s3deploy.BucketDeployment(this, 'DeploySvelteKitAssets', {
 			sources: [s3deploy.Source.asset(path.join(__dirname, '../../build/client'))],
 			destinationBucket: staticBucket,
-			destinationKeyPrefix: '_app',
 			cacheControl: [s3deploy.CacheControl.maxAge(cdk.Duration.days(365))]
 		});
 

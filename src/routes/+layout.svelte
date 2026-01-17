@@ -69,10 +69,9 @@
 <style>
 	.main-nav {
 		display: flex;
-		gap: 1.5rem;
-		justify-content: center;
+		justify-content: space-evenly;
 		padding: 0.75rem 0;
-		border-bottom: 4px solid #ffff00;
+		position: relative;
 		width: 600px;
 		margin: 0 auto;
 	}
@@ -83,9 +82,23 @@
 		}
 	}
 
+	.main-nav::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 50%;
+		transform: translateY(-50%);
+		height: 4px;
+		background-color: #ffff00;
+	}
+
 	.main-nav a {
 		color: #ffff00;
 		text-decoration: none;
+		background-color: black;
+		padding: 0 0.5rem;
+		position: relative;
 	}
 
 	.main-nav a:hover,
