@@ -128,7 +128,9 @@ export async function getPost(slug: string): Promise<PostContent> {
 }
 
 export async function getAsset(path: string): Promise<{ content: Buffer; contentType: string }> {
-	const { data } = await fetchWithCache<FileResponse>(`${BASE_URL}/posts/assets/${path}`);
+	// Extract just the filename from paths like "./assets/image.png"
+	const filename = path.split('/').pop() || path;
+	const { data } = await fetchWithCache<FileResponse>(`${BASE_URL}/posts/assets/${filename}`);
 
 	const content = Buffer.from(data.content, 'base64');
 
