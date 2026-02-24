@@ -22,7 +22,7 @@
   "devDependencies": {
     "@sveltejs/adapter-node": "^5.5.3",
     "@sveltejs/kit": "^2.53.0",
-    "@sveltejs/vite-plugin-svelte": "^6.2.4",
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
     "@types/aws-lambda": "^8.10.160",
     "@types/node": "^25.3.0",
     "aws-cdk": "^2.1107.0",
