@@ -19,7 +19,8 @@ export const load: PageServerLoad = async ({ params }) => {
 			date: parsed.date,
 			publishedTime: new Date(parsed.date).toISOString(),
 			readingTime,
-			content: parsed.content
+			content: parsed.content,
+			canonical: parsed.canonical
 		};
 	} catch (e) {
 		throw error(404, 'Post not found');

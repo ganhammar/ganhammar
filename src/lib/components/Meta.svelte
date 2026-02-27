@@ -8,6 +8,7 @@
 		ogType?: 'website' | 'article';
 		publishedTime?: string;
 		author?: string;
+		canonicalUrl?: string;
 	}
 
 	let {
@@ -15,11 +16,12 @@
 		description = 'Software developer sharing thoughts, experiments, and practical insights on web development.',
 		ogType = 'website',
 		publishedTime = undefined,
-		author = 'Anton Ganhammar'
+		author = 'Anton Ganhammar',
+		canonicalUrl = undefined
 	}: Props = $props();
 
 	const baseUrl = dev ? 'http://localhost:5173' : 'https://ganhammar.se';
-	const canonical = $derived(`${baseUrl}${$page.url.pathname}`);
+	const canonical = $derived(canonicalUrl ?? `${baseUrl}${$page.url.pathname}`);
 	const fullTitle = $derived(title === 'Ganhammar' ? title : `${title} | Ganhammar`);
 </script>
 

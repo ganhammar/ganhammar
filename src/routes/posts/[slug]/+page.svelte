@@ -41,6 +41,7 @@
 	description={data.description}
 	ogType="article"
 	publishedTime={data.publishedTime}
+	canonicalUrl={data.canonical}
 />
 
 <svelte:head>

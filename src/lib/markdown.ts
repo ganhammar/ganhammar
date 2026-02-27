@@ -12,6 +12,7 @@ export type ParsedPost = {
 	status: string;
 	description: string;
 	content: string;
+	canonical?: string;
 };
 
 function parseFrontmatter(raw: string): { data: Record<string, unknown>; content: string } {
@@ -79,7 +80,8 @@ export async function parseMarkdown(raw: string): Promise<ParsedPost> {
 		date: (data.date as string) || '',
 		status: (data.status as string) || 'draft',
 		description,
-		content: html
+		content: html,
+		canonical: (data.canonical as string) || undefined
 	};
 }
 
