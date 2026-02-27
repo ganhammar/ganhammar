@@ -92,14 +92,21 @@ async function fetchAndExtractMetadata(file: ContentsResponse): Promise<Post> {
 		}
 	});
 	const content = await response.text();
-	const metadataMatch = content.match(
-		/---\ntitle: (?<title>.*)\nid: (?<id>.*)\ndate: (?<date>.*)\nstatus: (?<status>.*)\n---/
-	);
+	const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
+	const fields: Record<string, string> = {};
+	if (fmMatch) {
+		for (const line of fmMatch[1].split('\n')) {
+			const idx = line.indexOf(':');
+			if (idx > 0) {
+				fields[line.slice(0, idx).trim()] = line.slice(idx + 1).trim();
+			}
+		}
+	}
 	const metadata = {
-		title: metadataMatch?.groups?.title.replace(/^"|"$/g, '') || '',
-		id: metadataMatch?.groups?.id || '',
-		date: metadataMatch?.groups?.date || '',
-		status: metadataMatch?.groups?.status || 'draft'
+		title: (fields.title || '').replace(/^"|"$/g, ''),
+		id: fields.id || '',
+		date: fields.date || '',
+		status: fields.status || 'draft'
 	};
 
 	metadataCache.set(file.path, metadata);
