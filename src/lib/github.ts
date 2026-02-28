@@ -137,22 +137,19 @@ export async function getPost(slug: string): Promise<PostContent> {
 export async function getAsset(path: string): Promise<{ content: Buffer; contentType: string }> {
 	// Extract just the filename from paths like "./assets/image.png"
 	const filename = path.split('/').pop() || path;
-	const { data } = await fetchWithCache<FileResponse>(`${BASE_URL}/posts/assets/${filename}`);
 
-	const content = Buffer.from(data.content, 'base64');
+	// Use raw.githubusercontent.com to avoid the Contents API's 1MB size limit
+	const rawUrl = `https://raw.githubusercontent.com/${REPOSITORY}/main/posts/assets/${filename}`;
+	const response = await fetch(rawUrl, {
+		headers: { Authorization: `Bearer ${getApiToken()}` }
+	});
 
-	let contentType = 'text/plain';
-	if (data.name.endsWith('.png')) {
-		contentType = 'image/png';
-	} else if (data.name.endsWith('.jpg') || data.name.endsWith('.jpeg')) {
-		contentType = 'image/jpeg';
-	} else if (data.name.endsWith('.gif')) {
-		contentType = 'image/gif';
-	} else if (data.name.endsWith('.webp')) {
-		contentType = 'image/webp';
-	} else if (data.name.endsWith('.svg')) {
-		contentType = 'image/svg+xml';
+	if (!response.ok) {
+		throw new Error(`GitHub raw fetch error: ${response.status}`);
 	}
+
+	const content = Buffer.from(await response.arrayBuffer());
+	const contentType = response.headers.get('content-type') || 'application/octet-stream';
 
 	return { content, contentType };
 }
