@@ -56,6 +56,11 @@
 			<time datetime={data.publishedTime}>{formattedDate}</time>
 			<span class="reading-time">{data.readingTime} min read</span>
 		</div>
+		{#if data.canonical}
+			<p class="originally-posted">
+				Originally posted on <a href={data.canonical}>{new URL(data.canonical).hostname}</a>
+			</p>
+		{/if}
 		<p class="back-link">
 			<a href="/">&lt;- Back</a>
 		</p>
@@ -94,6 +99,17 @@
 	}
 
 	.post-meta a {
+		color: #ffff00;
+	}
+
+	.originally-posted {
+		color: #ffff00;
+		font-size: 0.85em;
+		margin-top: 0.75rem;
+		margin-bottom: 0;
+	}
+
+	.originally-posted a {
 		color: #ffff00;
 	}
 
