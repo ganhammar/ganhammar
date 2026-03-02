@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite dev",
+    "dev": "API_TOKEN=${API_TOKEN:-$(gh auth token)} vite dev",
     "build": "svelte-kit sync && vite build && npm run build:lambda && npm run build:package",
     "build:lambda": "esbuild lambda/handler.ts --bundle --platform=node --target=node20 --format=esm --outfile=build/handler.js --external:./server/* --external:./client/*",
     "build:package": "echo '{\"type\":\"module\"}' > build/package.json",
