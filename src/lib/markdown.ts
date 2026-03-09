@@ -61,7 +61,9 @@ export async function parseMarkdown(raw: string): Promise<ParsedPost> {
 				// Rewrite relative image URLs to use the asset proxy
 				let src = href;
 				if (href && !href.startsWith('http') && !href.startsWith('/')) {
-					src = `/posts/assets/${href}`;
+					// Strip leading ./assets/ prefix since the proxy already maps to the assets directory
+					const cleaned = href.replace(/^\.\/assets\//, '');
+					src = `/posts/assets/${cleaned}`;
 				}
 				const titleAttr = title ? ` title="${escapeHtml(title)}"` : '';
 				return `<img src="${src}" alt="${escapeHtml(text || '')}"${titleAttr} />`;
