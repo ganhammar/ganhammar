@@ -16,21 +16,21 @@
   "dependencies": {
     "hast-util-to-html": "^9.0.5",
     "lowlight": "^3.3.0",
-    "marked": "^18.0.2",
-    "yaml": "^2.8.3"
+    "marked": "^18.0.3",
+    "yaml": "^2.8.4"
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "^5.5.4",
-    "@sveltejs/kit": "^2.58.0",
+    "@sveltejs/kit": "^2.59.0",
     "@sveltejs/vite-plugin-svelte": "^6.2.4",
     "@types/aws-lambda": "^8.10.161",
     "@types/node": "^25.6.0",
-    "aws-cdk": "^2.1119.0",
-    "aws-cdk-lib": "^2.251.0",
+    "aws-cdk": "^2.1120.0",
+    "aws-cdk-lib": "^2.252.0",
     "constructs": "^10.6.0",
     "esbuild": "^0.28.0",
     "svelte": "^5.55.5",
-    "svelte-check": "^4.4.6",
+    "svelte-check": "^4.4.7",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3",
     "vite": "^7.3.2"
