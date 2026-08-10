@@ -40,7 +40,7 @@ export class GanhammarStack extends cdk.Stack {
 		// Lambda function for SvelteKit SSR
 		// Expects build to be done before CDK deploy
 		const svelteKitFunction = new lambda.Function(this, 'SvelteKitFunction', {
-			runtime: lambda.Runtime.NODEJS_20_X,
+			runtime: lambda.Runtime.NODEJS_24_X,
 			handler: 'handler.handler',
 			code: lambda.Code.fromAsset(path.join(__dirname, '../../build')),
 			memorySize: 1024,
