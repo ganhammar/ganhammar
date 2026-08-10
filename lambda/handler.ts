@@ -3,24 +3,23 @@ import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
+// The SvelteKit server is bundled into this file at build time from the
+// stable adapter API surface (.svelte-kit/output/server), so the handler
+// does not depend on adapter-node's internal build/server chunk layout.
+// @ts-expect-error - generated at build time, no type declarations
+import { Server } from '../.svelte-kit/output/server/index.js';
+// @ts-expect-error - generated at build time, no type declarations
+import { manifest } from '../.svelte-kit/output/server/manifest.js';
+
 // Get the directory of the current module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// These will be imported dynamically after build
-let server: any;
+const server = new Server(manifest);
 let initialized = false;
 
 async function initServer() {
 	if (initialized) return;
-
-	// Import the SvelteKit Server and manifest from the build directory
-	// When running in Lambda, this file is at /var/task/index.mjs
-	// and the build files are at /var/task/server/
-	const { Server } = await import('./server/index.js');
-	const { manifest } = await import('./server/manifest.js');
-
-	server = new Server(manifest);
 
 	await server.init({
 		env: process.env,
