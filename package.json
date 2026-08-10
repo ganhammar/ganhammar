@@ -8,6 +8,8 @@
     "build:lambda": "esbuild lambda/handler.ts --bundle --platform=node --target=node20 --format=esm --outfile=build/handler.js",
     "build:package": "echo '{\"type\":\"module\"}' > build/package.json",
     "preview": "vite preview",
+    "test:e2e": "node e2e/run.mjs",
+    "test:smoke": "node e2e/smoke.mjs",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "cdk": "cdk",
