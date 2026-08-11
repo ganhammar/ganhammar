@@ -20,6 +20,9 @@
 		serif;
 	--mono: ui-monospace, 'SF Mono', 'PT Mono', Menlo, Consolas, 'Liberation Mono', monospace;
 
+	/* Breathing room between the sheet's border and the window, the same on
+	   every side. */
+	--sheet-gap: clamp(12px, 2.4vw, 34px);
 	--rail: 172px;
 	--gutter: clamp(28px, 4vw, 52px);
 	--measure: 60ch;
@@ -78,7 +81,11 @@ a {
 
 .sheet {
 	max-width: 1180px;
-	margin: clamp(12px, 2.4vw, 34px) auto;
+	/* Width is reduced rather than left to auto margins, which collapse to
+	   nothing once the viewport is narrower than the max-width and let the
+	   border run edge to edge. */
+	width: calc(100% - var(--sheet-gap) * 2);
+	margin: var(--sheet-gap) auto;
 	border: 1px solid var(--ink);
 	background: var(--paper);
 	padding: clamp(18px, 3.4vw, 44px);
