@@ -1,126 +1,136 @@
 import * as cdk from 'aws-cdk-lib';
-import * as lambda from 'aws-cdk-lib/aws-lambda';
-import * as apigateway from 'aws-cdk-lib/aws-apigatewayv2';
-import * as apigatewayIntegrations from 'aws-cdk-lib/aws-apigatewayv2-integrations';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as cloudfrontOrigins from 'aws-cdk-lib/aws-cloudfront-origins';
 import type { Construct } from 'constructs';
+import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+/**
+ * Reads the rewrite rule and strips the `export` keyword.
+ *
+ * The file is written as an ES module so tests and the local server can import
+ * it without any evaluation tricks; the CloudFront Functions runtime wants a
+ * bare `function handler`, and that keyword is the only difference.
+ */
+function readEdgeFunction(): string {
+	const source = fs.readFileSync(path.join(__dirname, '../edge/rewrite.js'), 'utf8');
+	return source.replace(/^export function handler/m, 'function handler');
+}
+
+/**
+ * The site is a folder of prerendered files on S3, fronted by CloudFront.
+ *
+ * There is no compute in the request path. A page view is an edge cache hit,
+ * or on a miss a single read from S3. The only code that runs per request is
+ * the CloudFront Function that maps a clean URL onto its `.html` key.
+ */
 export class GanhammarStack extends cdk.Stack {
 	constructor(scope: Construct, id: string, props?: cdk.StackProps) {
 		super(scope, id, props);
 
-		// S3 bucket for static assets
-		const staticBucket = new s3.Bucket(this, 'StaticBucket', {
+		const siteBucket = new s3.Bucket(this, 'StaticBucket', {
 			removalPolicy: cdk.RemovalPolicy.DESTROY,
-			blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL
+			blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+			enforceSSL: true
 		});
 
-		// Deploy static assets to S3 (fonts from static folder)
-		new s3deploy.BucketDeployment(this, 'DeployStaticAssets', {
-			sources: [s3deploy.Source.asset(path.join(__dirname, '../../static'))],
-			destinationBucket: staticBucket,
-			cacheControl: [s3deploy.CacheControl.maxAge(cdk.Duration.days(365))]
+		const rewriteFunction = new cloudfront.Function(this, 'RewriteFunction', {
+			runtime: cloudfront.FunctionRuntime.JS_2_0,
+			code: cloudfront.FunctionCode.fromInline(readEdgeFunction()),
+			comment: 'Maps clean URLs onto the prerendered .html keys in S3'
 		});
 
-		// Deploy SvelteKit client assets to S3
-		new s3deploy.BucketDeployment(this, 'DeploySvelteKitAssets', {
-			sources: [s3deploy.Source.asset(path.join(__dirname, '../../build/client'))],
-			destinationBucket: staticBucket,
-			cacheControl: [s3deploy.CacheControl.maxAge(cdk.Duration.days(365))]
-		});
-
-		// Lambda function for SvelteKit SSR
-		// Expects build to be done before CDK deploy
-		const svelteKitFunction = new lambda.Function(this, 'SvelteKitFunction', {
-			runtime: lambda.Runtime.NODEJS_24_X,
-			handler: 'handler.handler',
-			code: lambda.Code.fromAsset(path.join(__dirname, '../../build')),
-			memorySize: 1024,
-			timeout: cdk.Duration.seconds(30),
-			environment: {
-				NODE_ENV: 'production',
-				API_TOKEN: process.env.API_TOKEN || ''
+		// Fingerprinted filenames can be cached in the browser forever. The
+		// deployment writes one Cache-Control for every object, so the long TTL
+		// is applied here, per path, instead.
+		const immutableHeaders = new cloudfront.ResponseHeadersPolicy(this, 'ImmutableHeaders', {
+			customHeadersBehavior: {
+				customHeaders: [
+					{
+						header: 'Cache-Control',
+						value: 'public, max-age=31536000, immutable',
+						override: true
+					}
+				]
 			}
 		});
 
-		// API Gateway HTTP API
-		const httpApi = new apigateway.HttpApi(this, 'HttpApi', {
-			apiName: 'ganhammar-api'
-		});
+		const origin = cloudfrontOrigins.S3BucketOrigin.withOriginAccessControl(siteBucket);
 
-		// Add Lambda integration
-		httpApi.addRoutes({
-			path: '/{proxy+}',
-			methods: [apigateway.HttpMethod.ANY],
-			integration: new apigatewayIntegrations.HttpLambdaIntegration(
-				'LambdaIntegration',
-				svelteKitFunction
-			)
-		});
+		const staticBehavior: cloudfront.BehaviorOptions = {
+			origin,
+			viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+			cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+			compress: true
+		};
 
-		// Add root path
-		httpApi.addRoutes({
-			path: '/',
-			methods: [apigateway.HttpMethod.ANY],
-			integration: new apigatewayIntegrations.HttpLambdaIntegration(
-				'LambdaIntegrationRoot',
-				svelteKitFunction
-			)
-		});
-
-		// S3 origin with Origin Access Control (OAC)
-		const s3Origin = cloudfrontOrigins.S3BucketOrigin.withOriginAccessControl(staticBucket);
-
-		// CloudFront distribution
 		const distribution = new cloudfront.Distribution(this, 'Distribution', {
+			defaultRootObject: 'index.html',
 			defaultBehavior: {
-				origin: new cloudfrontOrigins.HttpOrigin(
-					`${httpApi.httpApiId}.execute-api.${this.region}.amazonaws.com`
-				),
-				viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-				allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
-				cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
-				originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER
+				...staticBehavior,
+				functionAssociations: [
+					{
+						function: rewriteFunction,
+						eventType: cloudfront.FunctionEventType.VIEWER_REQUEST
+					}
+				]
 			},
 			additionalBehaviors: {
-				'/_app/*': {
-					origin: s3Origin,
-					viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-					cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED
+				// Already carry a content hash in the filename, and need no URL
+				// rewriting, so they skip the function and take the long TTL.
+				'/_app/immutable/*': {
+					...staticBehavior,
+					responseHeadersPolicy: immutableHeaders
 				},
-				'/*.ttf': {
-					origin: s3Origin,
-					viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-					cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED
-				},
-				'/*.woff': {
-					origin: s3Origin,
-					viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-					cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED
-				},
-				'/*.woff2': {
-					origin: s3Origin,
-					viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-					cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED
-				}
+				'/posts/assets/*': staticBehavior
 			},
-			priceClass: cloudfront.PriceClass.PRICE_CLASS_100
+			errorResponses: [
+				{
+					// A private bucket answers 403 for a key that is not there.
+					httpStatus: 403,
+					responseHttpStatus: 404,
+					responsePagePath: '/404.html',
+					ttl: cdk.Duration.minutes(5)
+				},
+				{
+					httpStatus: 404,
+					responseHttpStatus: 404,
+					responsePagePath: '/404.html',
+					ttl: cdk.Duration.minutes(5)
+				}
+			],
+			priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
+			httpVersion: cloudfront.HttpVersion.HTTP2_AND_3
+		});
+
+		// One deployment for the whole build so that pruning stays accurate: a
+		// post that is deleted upstream disappears from the bucket too. Pages get
+		// a short browser TTL and a long CDN TTL, and the CDN copy is invalidated
+		// here on every deploy.
+		new s3deploy.BucketDeployment(this, 'DeploySite', {
+			sources: [s3deploy.Source.asset(path.join(__dirname, '../../build'))],
+			destinationBucket: siteBucket,
+			distribution,
+			distributionPaths: ['/*'],
+			prune: true,
+			cacheControl: [
+				s3deploy.CacheControl.setPublic(),
+				s3deploy.CacheControl.maxAge(cdk.Duration.minutes(5)),
+				s3deploy.CacheControl.sMaxAge(cdk.Duration.days(365))
+			],
+			memoryLimit: 512
 		});
 
 		new cdk.CfnOutput(this, 'DistributionDomainName', {
 			value: distribution.distributionDomainName
 		});
 
-		new cdk.CfnOutput(this, 'ApiUrl', {
-			value: httpApi.url || ''
-		});
+		new cdk.CfnOutput(this, 'BucketName', { value: siteBucket.bucketName });
 	}
 }

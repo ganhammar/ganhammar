@@ -1,163 +1,884 @@
-@font-face {
-  font-family: 'fixedsys';
-  src: url('/FSEX302.ttf') format('truetype');
-}
-body {
-  background-color: black;
-  color: white;
-  font-size: 20px;
-  margin: 20px;
-}
-ul li, p, h2, a {
-  line-height: 1.4;
-}
-.yellow, h2, a {
-  color: #ffff00;
-}
-h2 {
-  margin: 0;
-}
-* {
-  font-family: fixedsys;
-}
-header {
-  margin: 0;
-}
-header .banner {
-  background-color: #0000ff;
-}
-header .info {
-  width: 600px;
-  margin: 0 auto 5px auto;
-  display: flex;
-  justify-content: space-between;
-}
-h1 {
-  font-size: 7rem;
-  margin: 0;
-  width: 600px;
-  margin: 0 auto
-}
-h1 a {
-  text-decoration: none;
-  line-height: 6rem;
-  color: white;
-}
-main {
-  width: 600px;
-  margin: 0 auto 40px auto;
-  min-height: 500px;
-}
-main h1 {
-  font-size: 2rem;
-  line-height: 2.2rem;
-  color: #ffff00;
-}
-main p {
-  color: white;
-}
-footer {
-  margin: 25px 0 0 0;
-  background-color: #0000ff;
-  border-top: 5px solid #ffff00;
-  text-align: center;
-  color: #ffff00;
-  padding: 5px 0;
-}
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-.date {
-  color: #ffff00;
-  text-align: right;
-  grid-area: date;
-}
-.title {
-  grid-area: title;
-}
-ul li {
-  display: grid;
-  grid-template-columns: 1fr 105px;
-  grid-template-areas: "title date";
-  margin-bottom: 16px;
-}
-a:hover {
-  text-decoration: none;
-}
-table {
-  margin-bottom: 20px;
-  width: 100%;
-  table-layout: fixed;
-}
-table img, img {
-  max-width: 100%;
-  height: auto;
-}
-th {
-  text-align: left;
-}
-th, td {
-  padding: 5px;
-  border: 1px solid #333333;
-}
-pre {
-  overflow-x: auto;
-  max-width: 100%;
-  padding: 0;
-  margin-left: 0;
-  margin-right: 0;
-}
-pre::-webkit-scrollbar {
-  height: 8px;
-}
-pre::-webkit-scrollbar-track {
-  background: #2d2d2d;
-}
-pre::-webkit-scrollbar-thumb {
-  background: #555;
-  border-radius: 4px;
-}
-pre::-webkit-scrollbar-thumb:hover {
-  background: #777;
-}
-code {
-  background-color: #555555;
-  padding: 0 3px;
-  border-radius: 2px;
-  word-wrap: break-word;
-}
-pre code {
-  background-color: transparent;
-  padding: 0;
-}
-@media screen and (max-width: 660px) {
-  h1, main, footer, header .info {
-    width: 100%;
-  }
-}
-@media screen and (max-width: 560px) {
-  h1 {
-    font-size: 5rem;
-  }
-  ul li {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "date"
-      "title";
-    margin-bottom: 30px;
-  }
-  .date {
-    text-align: left;
-  }
+/*
+ * ganhammar.se — a paper.
+ *
+ * Grayscale line-work with a single accent. No webfonts: every family below
+ * resolves to something already on the machine, which keeps first paint free
+ * of font downloads. The stylesheet is small enough that SvelteKit inlines it
+ * into each prerendered page, so a cold visit costs one request.
+ */
+
+:root {
+	--paper: #fbfbf9;
+	--ink: #14161a;
+	--ink-2: #565b62;
+	--ink-3: #9ba1a7;
+	--hair: #d8dade;
+	--accent: #c8321e;
+
+	--label: 'Avenir Next Condensed', 'Helvetica Neue', 'Segoe UI', system-ui, sans-serif;
+	--body: Charter, 'Bitstream Charter', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia,
+		serif;
+	--mono: ui-monospace, 'SF Mono', 'PT Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+
+	--rail: 172px;
+	--gutter: clamp(28px, 4vw, 52px);
+	--measure: 60ch;
+	--note: 200px;
 }
 
-@media screen and (max-width: 420px) {
-  h1 {
-    font-size: 4rem;
-  }
-  header .info {
-    font-size: 1rem;
-  }
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	background: var(--paper);
+	color: var(--ink);
+	font-family: var(--label);
+	line-height: 1.5;
+	-webkit-font-smoothing: antialiased;
+}
+
+a {
+	color: var(--accent);
+}
+
+:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+.skip-link {
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	background: var(--ink);
+	color: var(--paper);
+	padding: 10px 16px;
+	font-family: var(--mono);
+	font-size: 0.7rem;
+	letter-spacing: 0.2em;
+	text-transform: uppercase;
+	text-decoration: none;
+	z-index: 100;
+}
+
+.skip-link:focus {
+	left: 8px;
+	top: 8px;
+}
+
+/* ---------- sheet ---------- */
+
+.sheet {
+	max-width: 1180px;
+	margin: clamp(12px, 2.4vw, 34px) auto;
+	border: 1px solid var(--ink);
+	background: var(--paper);
+	padding: clamp(18px, 3.4vw, 44px);
+	position: relative;
+}
+
+.sheet::before {
+	content: '';
+	position: absolute;
+	inset: 6px;
+	border: 1px solid var(--hair);
+	pointer-events: none;
+}
+
+/* ---------- masthead ---------- */
+
+/* A grid rather than a wrapping flex row: the colophon is hidden at the same
+   breakpoint the columns collapse at, so it can never end up stacked under the
+   wordmark eating half the screen. Wrapping would have made that depend on
+   font metrics, which differ per platform. */
+.masthead {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: end;
+	gap: clamp(16px, 4vw, 60px);
+	padding-bottom: 14px;
+	border-bottom: 1px solid var(--ink);
+}
+
+.wordmark {
+	margin: 0;
+	font-size: clamp(1.55rem, 4.4vw, 3rem);
+	line-height: 1;
+	letter-spacing: 0.24em;
+	text-transform: uppercase;
+	font-weight: 600;
+}
+
+.wordmark a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.wordmark .stop {
+	color: var(--accent);
+}
+
+.tagline {
+	font-family: var(--body);
+	font-size: 0.95rem;
+	font-style: italic;
+	color: var(--ink-2);
+	margin-top: 12px;
+	max-width: 46ch;
+}
+
+/* Label and value run together on one right-aligned line, ragged left, rather
+   than being split into two columns with a gap down the middle. */
+.colophon {
+	margin: 0;
+	text-align: right;
+	font-family: var(--mono);
+	font-size: 0.64rem;
+	line-height: 1.9;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--ink-3);
+	white-space: nowrap;
+}
+
+.colophon dt,
+.colophon dd {
+	display: inline;
+	margin: 0;
+}
+
+.colophon dd {
+	color: var(--ink);
+}
+
+.colophon dd::after {
+	content: '\A';
+	white-space: pre;
+}
+
+.mainnav {
+	display: flex;
+	gap: clamp(14px, 2.6vw, 30px);
+	flex-wrap: wrap;
+	padding: 10px 0;
+	border-bottom: 1px solid var(--ink);
+	font-size: 0.74rem;
+	letter-spacing: 0.22em;
+	text-transform: uppercase;
+}
+
+.mainnav a {
+	color: var(--ink-2);
+	text-decoration: none;
+	padding-bottom: 2px;
+	border-bottom: 1px solid transparent;
+	transition:
+		color 0.18s,
+		border-color 0.18s;
+}
+
+.mainnav a:hover {
+	color: var(--ink);
+	border-color: var(--ink);
+}
+
+.mainnav a[aria-current='page'] {
+	color: var(--accent);
+	border-color: var(--accent);
+}
+
+/* ---------- footer ---------- */
+
+.sheet > footer {
+	margin-top: clamp(34px, 5vw, 58px);
+	padding-top: 12px;
+	border-top: 1px solid var(--ink);
+	display: flex;
+	justify-content: space-between;
+	gap: 14px;
+	flex-wrap: wrap;
+	font-family: var(--mono);
+	font-size: 0.62rem;
+	letter-spacing: 0.2em;
+	text-transform: uppercase;
+	color: var(--ink-3);
+}
+
+.sheet > footer a {
+	color: var(--ink-2);
+	text-decoration: none;
+}
+
+.sheet > footer a:hover {
+	color: var(--accent);
+}
+
+/* ---------- index ---------- */
+
+.hero {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	align-items: center;
+	gap: clamp(22px, 5vw, 72px);
+	margin: clamp(24px, 4vw, 44px) 0 0;
+}
+
+.lead {
+	max-width: 34ch;
+	margin: 0;
+	font-family: var(--body);
+	font-size: clamp(1.2rem, 2.4vw, 1.7rem);
+	line-height: 1.45;
+}
+
+.lead em {
+	font-style: normal;
+	border-bottom: 1px solid var(--accent);
+}
+
+.figure svg {
+	display: block;
+	width: 100%;
+	max-width: 470px;
+	height: auto;
+	margin: 0 auto;
+}
+
+.figure figcaption {
+	font-family: var(--mono);
+	font-size: 0.64rem;
+	letter-spacing: 0.2em;
+	text-transform: uppercase;
+	color: var(--ink-3);
+	text-align: center;
+	margin-top: 10px;
+}
+
+.figure figcaption b {
+	color: var(--ink-2);
+	font-weight: 400;
+}
+
+.section-head {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	gap: 14px;
+	flex-wrap: wrap;
+	margin-top: clamp(34px, 5vw, 58px);
+	padding-bottom: 8px;
+	border-bottom: 1px solid var(--ink);
+	font-family: var(--mono);
+	font-size: 0.64rem;
+	letter-spacing: 0.26em;
+	text-transform: uppercase;
+	color: var(--ink-3);
+}
+
+.entries {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.entry {
+	display: grid;
+	grid-template-columns: 58px 1fr auto;
+	align-items: baseline;
+	gap: clamp(12px, 2.4vw, 28px);
+	padding: 15px 6px 15px 0;
+	border-bottom: 1px solid var(--hair);
+	text-decoration: none;
+	color: inherit;
+	position: relative;
+	transition: padding-left 0.2s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.entry:hover {
+	padding-left: 14px;
+}
+
+.entry::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 50%;
+	width: 8px;
+	height: 1px;
+	background: var(--accent);
+	transform: scaleX(0);
+	transform-origin: left;
+	transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.entry:hover::before {
+	transform: scaleX(1);
+}
+
+.entry-num {
+	font-family: var(--mono);
+	font-size: 0.8rem;
+	letter-spacing: 0.08em;
+	color: var(--ink-3);
+	transition: color 0.18s;
+}
+
+.entry:hover .entry-num {
+	color: var(--accent);
+}
+
+.entry-title {
+	font-family: var(--body);
+	font-size: clamp(1rem, 1.6vw, 1.14rem);
+	line-height: 1.32;
+	max-width: 56ch;
+}
+
+.entry-date {
+	font-family: var(--mono);
+	font-size: 0.68rem;
+	letter-spacing: 0.08em;
+	color: var(--ink-3);
+	white-space: nowrap;
+}
+
+/* ---------- article shell ---------- */
+
+.paper-grid {
+	display: grid;
+	grid-template-columns: var(--rail) 1fr;
+	gap: var(--gutter);
+	margin-top: clamp(14px, 2.4vw, 26px);
+}
+
+/* Grid items default to min-width:auto, which lets a long unbroken title in
+   the rail push the whole page wider than the viewport. */
+.paper-grid > * {
+	min-width: 0;
+}
+
+.rail {
+	position: sticky;
+	top: 26px;
+	align-self: start;
+}
+
+.rail-block {
+	margin-bottom: 26px;
+}
+
+.rail-block h2 {
+	margin: 0 0 9px;
+	padding-bottom: 6px;
+	border-bottom: 1px solid var(--ink);
+	font-family: var(--mono);
+	font-size: 0.58rem;
+	letter-spacing: 0.26em;
+	text-transform: uppercase;
+	color: var(--ink-3);
+	font-weight: 400;
+}
+
+.rail dl {
+	margin: 0;
+	font-family: var(--mono);
+	font-size: 0.64rem;
+	line-height: 1.75;
+	letter-spacing: 0.06em;
+}
+
+.rail dt {
+	color: var(--ink-3);
+	text-transform: uppercase;
+	font-size: 0.58rem;
+	letter-spacing: 0.18em;
+}
+
+.rail dd {
+	margin: 0 0 8px;
+	color: var(--ink);
+	overflow-wrap: anywhere;
+}
+
+.rail dd a {
+	text-decoration: none;
+}
+
+.toc {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	counter-reset: toc;
+}
+
+.toc li {
+	margin: 0 0 5px;
+}
+
+.toc a {
+	display: flex;
+	gap: 8px;
+	text-decoration: none;
+	color: var(--ink-2);
+	font-size: 0.78rem;
+	line-height: 1.35;
+	transition: color 0.18s;
+}
+
+.toc a::before {
+	counter-increment: toc;
+	content: counter(toc) '.';
+	color: var(--ink-3);
+	font-family: var(--mono);
+	font-size: 0.66rem;
+	flex: 0 0 auto;
+}
+
+.toc a:hover {
+	color: var(--ink);
+}
+
+.toc a[aria-current='true'],
+.toc a[aria-current='true']::before {
+	color: var(--accent);
+}
+
+.article-head {
+	margin-bottom: clamp(20px, 3vw, 32px);
+}
+
+.entry-no {
+	font-family: var(--mono);
+	font-size: 0.64rem;
+	letter-spacing: 0.24em;
+	text-transform: uppercase;
+	color: var(--ink-3);
+	margin-bottom: 12px;
+}
+
+.entry-no b {
+	color: var(--accent);
+	font-weight: 400;
+}
+
+.article-head h1 {
+	font-family: var(--body);
+	font-weight: 400;
+	font-size: clamp(1.6rem, 3.4vw, 2.5rem);
+	line-height: 1.16;
+	letter-spacing: -0.008em;
+	margin: 0;
+	max-width: 24ch;
+}
+
+.crosspost {
+	margin: 14px 0 0;
+	font-family: var(--mono);
+	font-size: 0.62rem;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--ink-3);
+}
+
+/* ---------- prose ---------- */
+
+.prose {
+	max-width: var(--measure);
+	position: relative;
+	counter-reset: sec;
+	font-family: var(--body);
+	font-size: clamp(1.04rem, 1.3vw, 1.13rem);
+	line-height: 1.68;
+}
+
+.prose > p {
+	margin: 0 0 1.2em;
+}
+
+.prose h2 {
+	font-family: var(--label);
+	font-weight: 600;
+	font-size: clamp(1rem, 1.7vw, 1.14rem);
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+	margin: 2.3em 0 0.7em;
+	padding-bottom: 7px;
+	border-bottom: 1px solid var(--ink);
+	display: flex;
+	gap: 12px;
+	scroll-margin-top: 24px;
+}
+
+.prose h2::before {
+	counter-increment: sec;
+	content: counter(sec) '.';
+	color: var(--ink-3);
+	font-family: var(--mono);
+	font-size: 0.86em;
+	font-weight: 400;
+}
+
+.prose h3 {
+	font-family: var(--label);
+	font-weight: 600;
+	font-size: 1rem;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--ink-2);
+	margin: 1.9em 0 0.5em;
+}
+
+.prose h4 {
+	font-family: var(--label);
+	font-size: 0.95rem;
+	letter-spacing: 0.06em;
+	margin: 1.6em 0 0.4em;
+}
+
+.prose a {
+	text-underline-offset: 3px;
+}
+
+.prose ul,
+.prose ol {
+	padding-left: 1.15em;
+}
+
+.prose li {
+	margin: 0.4em 0;
+}
+
+.prose li::marker {
+	color: var(--ink-3);
+}
+
+.prose img {
+	display: block;
+	max-width: 100%;
+	height: auto;
+	margin: 1.8em 0;
+	border: 1px solid var(--hair);
+}
+
+.prose hr {
+	border: 0;
+	border-top: 1px solid var(--hair);
+	margin: 2.4em 0;
+}
+
+.prose table {
+	width: 100%;
+	border-collapse: collapse;
+	font-family: var(--label);
+	font-size: 0.92rem;
+	margin: 1.8em 0;
+}
+
+.prose th,
+.prose td {
+	text-align: left;
+	padding: 8px 10px;
+	border-bottom: 1px solid var(--hair);
+}
+
+.prose th {
+	font-family: var(--mono);
+	font-size: 0.62rem;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+	color: var(--ink-3);
+	border-bottom-color: var(--ink);
+}
+
+.prose blockquote {
+	margin: 1.8em 0;
+	padding-left: 18px;
+	border-left: 2px solid var(--ink-3);
+	color: var(--ink-2);
+	font-style: italic;
+}
+
+.prose :not(pre) > code {
+	font-family: var(--mono);
+	font-size: 0.86em;
+	background: #f1f0ec;
+	border: 1px solid var(--hair);
+	padding: 0.08em 0.32em;
+}
+
+/* ---------- margin notes ---------- */
+
+/*
+ * Floated out of the measure with a negative margin so body text keeps its
+ * own rhythm and the note sits in the slack to the right. A note aligns with
+ * the block that follows it, so it is written just before the paragraph it
+ * belongs beside.
+ */
+.sidenote {
+	float: right;
+	clear: right;
+	width: var(--note);
+	margin: 0.25em calc((var(--note) + var(--gutter)) * -1) 1.4em var(--gutter);
+	font-family: var(--label);
+	font-size: 0.8rem;
+	line-height: 1.45;
+	color: var(--ink-2);
+	border-top: 1px solid var(--ink);
+	padding-top: 7px;
+}
+
+.sidenote p {
+	margin: 0 0 0.6em;
+}
+
+.sidenote p:last-child {
+	margin-bottom: 0;
+}
+
+.sidenote-label,
+.callout-label {
+	display: block;
+	font-family: var(--mono);
+	font-size: 0.56rem;
+	letter-spacing: 0.24em;
+	text-transform: uppercase;
+	color: var(--ink-3);
+	margin-bottom: 5px;
+	font-weight: 400;
+}
+
+.sidenote code,
+.callout code {
+	font-size: 0.92em;
+}
+
+.callout {
+	border: 1px solid var(--ink);
+	padding: 15px 18px;
+	margin: 1.9em 0;
+	font-family: var(--label);
+	font-size: 0.95rem;
+}
+
+.callout p {
+	margin: 0 0 0.7em;
+}
+
+.callout p:last-child {
+	margin-bottom: 0;
+}
+
+.callout[data-kind='warning'],
+.callout[data-kind='caution'] {
+	border-left: 3px solid var(--accent);
+}
+
+.callout[data-kind='warning'] .callout-label,
+.callout[data-kind='caution'] .callout-label {
+	color: var(--accent);
+}
+
+/* ---------- code ---------- */
+
+.prose pre {
+	margin: 1.9em 0;
+	padding: 16px 18px;
+	overflow-x: auto;
+	border: 1px solid var(--ink);
+	background: #fff;
+	font-family: var(--mono);
+	font-size: 0.82rem;
+	line-height: 1.62;
+	tab-size: 2;
+}
+
+.prose pre code {
+	font-family: inherit;
+	background: none;
+	border: 0;
+	padding: 0;
+}
+
+/* Highlight theme, built from the page palette so no external stylesheet is
+   needed. Structure is carried by weight and hue, not by a colour per token. */
+.hljs-comment,
+.hljs-quote {
+	color: var(--ink-3);
+	font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-doctag,
+.hljs-meta .hljs-keyword {
+	color: var(--accent);
+}
+
+.hljs-string,
+.hljs-regexp,
+.hljs-addition,
+.hljs-attribute,
+.hljs-meta .hljs-string {
+	color: #2c6b4f;
+}
+
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-link {
+	color: #7a5aa8;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-title.function_,
+.hljs-title.class_ {
+	color: var(--ink);
+	font-weight: 600;
+}
+
+.hljs-type,
+.hljs-built_in,
+.hljs-class .hljs-title,
+.hljs-params {
+	color: #1f5673;
+}
+
+.hljs-attr,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-property {
+	color: var(--ink-2);
+}
+
+.hljs-meta,
+.hljs-punctuation,
+.hljs-operator,
+.hljs-tag {
+	color: var(--ink-2);
+}
+
+.hljs-deletion {
+	color: var(--accent);
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: 600;
+}
+
+/* ---------- error page ---------- */
+
+.notice {
+	margin: clamp(40px, 9vw, 110px) 0;
+	text-align: center;
+}
+
+.notice .code {
+	font-family: var(--mono);
+	font-size: clamp(2.4rem, 9vw, 5rem);
+	letter-spacing: 0.1em;
+	color: var(--accent);
+	line-height: 1;
+}
+
+.notice p {
+	font-family: var(--body);
+	font-size: 1.15rem;
+	color: var(--ink-2);
+	margin: 18px 0 26px;
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 1080px) {
+	.sidenote {
+		float: none;
+		width: auto;
+		margin: 1.5em 0;
+		padding: 10px 0 0;
+		border-top: 1px solid var(--hair);
+	}
+}
+
+@media (max-width: 900px) {
+	.paper-grid {
+		grid-template-columns: 1fr;
+	}
+
+	/* No margin to stand in, so the rail stops being a column and its blocks
+	   become rows that can be ordered around the article: metadata above it,
+	   navigation below, and the contents list dropped since there is no
+	   sticky column left for it to track against. */
+	.rail {
+		display: contents;
+	}
+
+	.rail-block {
+		margin-bottom: 18px;
+		order: 1;
+	}
+
+	.paper-grid > article {
+		order: 2;
+	}
+
+	.rail-block[data-role='toc'] {
+		display: none;
+	}
+
+	.rail-block[data-role='nav'] {
+		order: 3;
+		margin-top: 26px;
+	}
+}
+
+@media (max-width: 820px) {
+	.masthead {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	/* Four lines of metadata are not worth a screenful on a phone. */
+	.colophon {
+		display: none;
+	}
+
+	.hero {
+		grid-template-columns: 1fr;
+	}
+
+	.lead {
+		max-width: 52ch;
+	}
+}
+
+@media (max-width: 720px) {
+	.entry {
+		grid-template-columns: 44px 1fr;
+	}
+
+	.entry-date {
+		grid-column: 2;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	* {
+		transition: none !important;
+	}
 }

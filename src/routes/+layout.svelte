@@ -1,29 +1,23 @@
 <script lang="ts">
 	import '../app.css';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
+	import type { LayoutServerData } from './$types';
 
-	let { children } = $props();
+	let { data, children }: { data: LayoutServerData; children: import('svelte').Snippet } =
+		$props();
 
-	const getNumber = (pathname: string) => {
-		if (pathname === '/') return 100;
-		return Math.floor(Math.random() * 899) + 101;
-	};
-
-	const formattedDate = new Date().toLocaleDateString('sv-SE', {
-		weekday: 'long',
-		year: 'numeric',
-		month: 'short',
-		day: 'numeric'
-	});
-
-	let number = $derived(getNumber($page.url.pathname));
-	const currentYear = new Date().getFullYear();
+	const nav = [
+		{ href: '/', label: 'Posts' },
+		{ href: '/about', label: 'About' },
+		{ href: '/rss.xml', label: 'RSS' },
+		{ href: 'https://github.com/ganhammar', label: 'GitHub', external: true }
+	];
 
 	const websiteSchema = JSON.stringify({
 		'@context': 'https://schema.org',
 		'@type': 'Blog',
 		name: 'Ganhammar',
-		description: 'Personal blog of Anton Ganhammar - Software development insights and experiments',
+		description: 'Notes on serverless, .NET, and whatever I have just taken apart.',
 		url: 'https://ganhammar.se',
 		author: {
 			'@type': 'Person',
@@ -31,103 +25,55 @@
 			url: 'https://ganhammar.se/about'
 		}
 	});
+
+	let path = $derived(page.url.pathname);
 </script>
 
 <svelte:head>
 	{@html `<script type="application/ld+json">${websiteSchema}</script>`}
 </svelte:head>
 
-<header>
-	<div class="info">
-		<span>{number}</span>
-		<span class="yellow">Ganhammar</span>
-		<span>{formattedDate}</span>
-	</div>
-	<div class="banner">
-		<h1><a href="/">Ganhammar</a></h1>
-	</div>
-	<nav class="main-nav">
-		<a href="/" class:active={$page.url.pathname === '/'}>Posts</a>
-		<a href="/about" class:active={$page.url.pathname === '/about'}>About</a>
-		<a href="https://github.com/ganhammar" target="_blank" rel="noopener">GitHub</a>
-	</nav>
-</header>
-<main>
-	{@render children()}
-</main>
-<footer>
-	<div class="content">
-		<div class="footer-links">
-			<a href="/about">About</a>
-			<span class="separator">·</span>
-			<a href="https://github.com/ganhammar" target="_blank" rel="noopener">GitHub</a>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="sheet">
+	<header class="masthead">
+		<div>
+			<p class="wordmark"><a href="/">Ganhammar<span class="stop">.</span></a></p>
+			<p class="tagline">Notes on serverless, .NET, and whatever I've just taken apart.</p>
 		</div>
-		<div class="copyright">Copyright &copy; {currentYear} Anton Ganhammar</div>
-	</div>
-</footer>
+		<dl class="colophon">
+			<dt>Author</dt>
+			<dd>Anton Ganhammar</dd>
+			<dt>Writing since</dt>
+			<dd>{data.colophon.since}</dd>
+			<dt>Entries</dt>
+			<dd>{data.colophon.entries}</dd>
+			<dt>Last updated</dt>
+			<dd>{data.colophon.updated}</dd>
+		</dl>
+	</header>
 
-<style>
-	.main-nav {
-		display: flex;
-		justify-content: space-evenly;
-		padding: 0.75rem 0;
-		position: relative;
-		width: 600px;
-		margin: 0 auto;
-	}
+	<nav class="mainnav">
+		{#each nav as item (item.href)}
+			<a
+				href={item.href}
+				aria-current={path === item.href ? 'page' : undefined}
+				target={item.external ? '_blank' : undefined}
+				rel={item.external ? 'noopener' : undefined}>{item.label}</a
+			>
+		{/each}
+	</nav>
 
-	@media screen and (max-width: 660px) {
-		.main-nav {
-			width: 100%;
-		}
-	}
+	<main id="main">
+		{@render children()}
+	</main>
 
-	.main-nav::before {
-		content: '';
-		position: absolute;
-		left: 0;
-		right: 0;
-		top: 50%;
-		transform: translateY(-50%);
-		height: 4px;
-		background-color: #ffff00;
-	}
-
-	.main-nav a {
-		color: #ffff00;
-		text-decoration: none;
-		background-color: black;
-		padding: 0 0.5rem;
-		position: relative;
-	}
-
-	.main-nav a:hover,
-	.main-nav a.active {
-		text-decoration: underline;
-	}
-
-	.footer-links {
-		display: flex;
-		gap: 0.75rem;
-		justify-content: center;
-		align-items: center;
-		margin-bottom: 0.5rem;
-	}
-
-	.footer-links a {
-		color: #ffff00;
-		text-decoration: none;
-	}
-
-	.footer-links a:hover {
-		text-decoration: underline;
-	}
-
-	.footer-links .separator {
-		color: #ffff00;
-	}
-
-	.copyright {
-		font-size: 0.9em;
-	}
-</style>
+	<footer>
+		<span>
+			<a href="/about">About</a> ·
+			<a href="/rss.xml">RSS</a> ·
+			<a href="https://github.com/ganhammar" target="_blank" rel="noopener">GitHub</a>
+		</span>
+		<span>&copy; {new Date().getFullYear()} Anton Ganhammar · Gothenburg</span>
+	</footer>
+</div>

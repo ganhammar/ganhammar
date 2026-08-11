@@ -1,16 +1,8 @@
 <script lang="ts">
-	import type { PageData } from './$types';
 	import Meta from '$lib/components/Meta.svelte';
+	import type { PageServerData } from './$types';
 
-	let { data }: { data: PageData } = $props();
-
-	const formattedDate = $derived(
-		new Date(data.date).toLocaleDateString('en-US', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric'
-		})
-	);
+	let { data }: { data: PageServerData } = $props();
 
 	const articleSchema = $derived(
 		JSON.stringify({
@@ -19,15 +11,8 @@
 			headline: data.title,
 			description: data.description,
 			datePublished: data.publishedTime,
-			author: {
-				'@type': 'Person',
-				name: 'Anton Ganhammar',
-				url: 'https://ganhammar.se/about'
-			},
-			publisher: {
-				'@type': 'Person',
-				name: 'Anton Ganhammar'
-			},
+			author: { '@type': 'Person', name: 'Anton Ganhammar', url: 'https://ganhammar.se/about' },
+			publisher: { '@type': 'Person', name: 'Anton Ganhammar' },
 			mainEntityOfPage: {
 				'@type': 'WebPage',
 				'@id': `https://ganhammar.se/posts/${data.id}`
@@ -45,76 +30,66 @@
 />
 
 <svelte:head>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/vs2015.min.css" />
 	{@html `<script type="application/ld+json">${articleSchema}</script>`}
 </svelte:head>
 
-<article>
-	<header class="post-header">
-		<div class="post-meta">
-			<span class="author">By <a href="/about">Anton Ganhammar</a></span>
-			<time datetime={data.publishedTime}>{formattedDate}</time>
-			<span class="reading-time">{data.readingTime} min read</span>
+<div class="paper-grid">
+	<aside class="rail">
+		<div class="rail-block" data-role="meta">
+			<h2>Entry</h2>
+			<dl>
+				<dt>Published</dt>
+				<dd>{data.date}</dd>
+				<dt>Reading</dt>
+				<dd>{data.readingTime} min</dd>
+			</dl>
 		</div>
-		{#if data.canonical}
-			<p class="originally-posted">
-				Originally posted on <a href={data.canonical}>{new URL(data.canonical).hostname}</a>
-			</p>
+
+		{#if data.headings.length > 2}
+			<div class="rail-block" data-role="toc">
+				<h2>Contents</h2>
+				<ul class="toc" data-toc>
+					{#each data.headings as heading (heading.id)}
+						<li><a href="#{heading.id}">{heading.text}</a></li>
+					{/each}
+				</ul>
+			</div>
 		{/if}
-		<p class="back-link">
-			<a href="/">&lt;- Back</a>
-		</p>
-	</header>
-	{@html data.content}
-</article>
-<p>
-	<a href="/">&lt;- Back</a>
-</p>
 
-<style>
-	.post-header {
-		margin-bottom: 2rem;
-	}
+		<div class="rail-block" data-role="nav">
+			<h2>Navigate</h2>
+			<dl>
+				{#if data.newer}
+					<dt>Newer</dt>
+					<dd><a href="/posts/{data.newer.id}">{data.newer.title}</a></dd>
+				{/if}
+				{#if data.older}
+					<dt>Older</dt>
+					<dd><a href="/posts/{data.older.id}">{data.older.title}</a></dd>
+				{/if}
+				<dd><a href="/">← All entries</a></dd>
+			</dl>
+		</div>
+	</aside>
 
-	.post-meta {
-		color: #ffff00;
-		font-size: 0.9em;
-		padding-bottom: 25px;
-		border-bottom: 4px solid #ffff00;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-	}
+	<article>
+		<header class="article-head">
+			<p class="entry-no">
+				Entry <b>No. {String(data.entry).padStart(2, '0')}</b> ·
+				<time datetime={data.publishedTime}>{data.date}</time>
+			</p>
+			<h1>{data.title}</h1>
+			{#if data.canonical}
+				<p class="crosspost">
+					Originally posted on <a href={data.canonical} rel="noopener">
+						{new URL(data.canonical).hostname}
+					</a>
+				</p>
+			{/if}
+		</header>
 
-	.post-meta .author {
-		text-align: left;
-	}
-
-	.post-meta time {
-		text-align: center;
-	}
-
-	.post-meta .reading-time {
-		text-align: right;
-	}
-
-	.post-meta a {
-		color: #ffff00;
-	}
-
-	.originally-posted {
-		color: #ffff00;
-		font-size: 0.85em;
-		margin-top: 0.75rem;
-		margin-bottom: 0;
-	}
-
-	.originally-posted a {
-		color: #ffff00;
-	}
-
-	.back-link {
-		margin-top: 0.75rem;
-		margin-bottom: 0;
-	}
-</style>
+		<div class="prose">
+			{@html data.content}
+		</div>
+	</article>
+</div>

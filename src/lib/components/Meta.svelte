@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
-	import { dev } from '$app/environment';
+	import { page } from '$app/state';
 
 	interface Props {
 		title?: string;
@@ -13,15 +12,19 @@
 
 	let {
 		title = 'Ganhammar',
-		description = 'Software developer sharing thoughts, experiments, and practical insights on web development.',
+		description = "Notes on serverless, .NET, and whatever I've just taken apart.",
 		ogType = 'website',
 		publishedTime = undefined,
 		author = 'Anton Ganhammar',
 		canonicalUrl = undefined
 	}: Props = $props();
 
-	const baseUrl = dev ? 'http://localhost:5173' : 'https://ganhammar.se';
-	const canonical = $derived(canonicalUrl ?? `${baseUrl}${$page.url.pathname}`);
+	const BASE = 'https://ganhammar.se';
+
+	// A cross-posted piece points its canonical at the original; everything else
+	// points at itself. Prerendered pages have a stable pathname, so this is
+	// resolved once at build time.
+	const canonical = $derived(canonicalUrl ?? `${BASE}${page.url.pathname}`);
 	const fullTitle = $derived(title === 'Ganhammar' ? title : `${title} | Ganhammar`);
 </script>
 
@@ -29,8 +32,8 @@
 	<title>{fullTitle}</title>
 	<meta name="description" content={description} />
 	<link rel="canonical" href={canonical} />
+	<link rel="alternate" type="application/rss+xml" title="Ganhammar" href="{BASE}/rss.xml" />
 
-	<!-- Open Graph -->
 	<meta property="og:type" content={ogType} />
 	<meta property="og:title" content={title} />
 	<meta property="og:description" content={description} />
@@ -38,12 +41,10 @@
 	<meta property="og:site_name" content="Ganhammar" />
 	<meta property="og:locale" content="en_US" />
 
-	<!-- Twitter Cards -->
 	<meta name="twitter:card" content="summary" />
 	<meta name="twitter:title" content={title} />
 	<meta name="twitter:description" content={description} />
 
-	<!-- Article Specific -->
 	{#if ogType === 'article' && publishedTime}
 		<meta property="article:author" content={author} />
 		<meta property="article:published_time" content={publishedTime} />

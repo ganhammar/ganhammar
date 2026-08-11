@@ -1,24 +1,36 @@
 <script lang="ts">
-	import type { PageData } from './$types';
 	import Meta from '$lib/components/Meta.svelte';
+	import Figure from '$lib/components/Figure.svelte';
+	import type { PageServerData } from './$types';
 
-	let { data }: { data: PageData } = $props();
+	let { data }: { data: PageServerData } = $props();
+
+	const pad = (n: number) => String(n).padStart(2, '0');
 </script>
 
-<Meta
-	title="Anton Ganhammar - Developer & Tech Experimenter"
-	description="Software developer sharing thoughts, experiments, and practical insights on web development, cloud architecture, and modern tech."
-/>
+<Meta />
 
-<div style="font-family: system-ui, sans-serif; line-height: 1.8;">
-	<h1>Hey! I'm Anton Ganhammar.</h1>
-	<p>I do dev stuff, here are some random thoughts and experiments:</p>
-	<ul>
-		{#each data.posts as post (post.id)}
-			<li>
-				<a class="title" href="/posts/{post.id}">{post.title}</a>
-				<span class="date">{post.date}</span>
-			</li>
-		{/each}
-	</ul>
+<div class="hero">
+	<p class="lead">
+		Hey! I'm Anton Ganhammar. I do dev stuff, and I write it down here. Mostly
+		<em>serverless</em>, <em>.NET</em> and whatever I've just taken apart.
+	</p>
+	<Figure />
 </div>
+
+<div class="section-head">
+	<span>Entries</span>
+	<span>No. · Title · Published</span>
+</div>
+
+<ul class="entries">
+	{#each data.posts as post (post.id)}
+		<li>
+			<a class="entry" href="/posts/{post.id}">
+				<span class="entry-num">{pad(post.entry)}</span>
+				<span class="entry-title">{post.title}</span>
+				<time class="entry-date" datetime={post.date}>{post.date}</time>
+			</a>
+		</li>
+	{/each}
+</ul>
