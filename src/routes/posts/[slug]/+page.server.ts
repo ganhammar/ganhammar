@@ -1,4 +1,4 @@
-import { getPosts, getPostSource } from '$lib/github';
+import { getAssetSizes, getPosts, getPostSource } from '$lib/github';
 import { parseMarkdown } from '$lib/markdown';
 import { error } from '@sveltejs/kit';
 import type { EntryGenerator, PageServerLoad } from './$types';
@@ -18,7 +18,9 @@ export const load: PageServerLoad = async ({ params }) => {
 		error(404, 'Post not found');
 	}
 
-	const parsed = parseMarkdown(await getPostSource(params.slug));
+	const parsed = parseMarkdown(await getPostSource(params.slug), {
+		assetSizes: await getAssetSizes()
+	});
 
 	// posts is newest-first, so the entry after this one in the array is older.
 	const newer = posts[index - 1];

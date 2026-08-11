@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import { page } from '$app/state';
+	import { AUTHOR, AUTHOR_URL, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '$lib/site';
 	import type { LayoutServerData } from './$types';
 
 	let { data, children }: { data: LayoutServerData; children: import('svelte').Snippet } =
@@ -16,14 +17,10 @@
 	const websiteSchema = JSON.stringify({
 		'@context': 'https://schema.org',
 		'@type': 'Blog',
-		name: 'Ganhammar',
-		description: 'Notes on serverless, .NET, and whatever I have just taken apart.',
-		url: 'https://ganhammar.se',
-		author: {
-			'@type': 'Person',
-			name: 'Anton Ganhammar',
-			url: 'https://ganhammar.se/about'
-		}
+		name: SITE_NAME,
+		description: SITE_DESCRIPTION,
+		url: SITE_URL,
+		author: { '@type': 'Person', name: AUTHOR, url: AUTHOR_URL }
 	});
 
 	let path = $derived(page.url.pathname);

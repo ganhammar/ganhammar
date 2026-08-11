@@ -1,11 +1,12 @@
 <script lang="ts">
 	import Meta from '$lib/components/Meta.svelte';
+	import { AUTHOR, SITE_URL } from '$lib/site';
 
 	const personSchema = JSON.stringify({
 		'@context': 'https://schema.org',
 		'@type': 'Person',
-		name: 'Anton Ganhammar',
-		url: 'https://ganhammar.se',
+		name: AUTHOR,
+		url: SITE_URL,
 		jobTitle: 'Software Engineer',
 		description:
 			'Software engineer with 15+ years of experience specializing in platform engineering and cloud architecture',

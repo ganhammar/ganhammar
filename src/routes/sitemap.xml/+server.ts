@@ -1,9 +1,8 @@
 import { getPosts } from '$lib/github';
+import { SITE_URL } from '$lib/site';
 import type { RequestHandler } from './$types';
 
 export const prerender = true;
-
-const BASE = 'https://ganhammar.se';
 
 type Entry = { url: string; priority: string; changefreq: string; lastmod?: string };
 
@@ -11,8 +10,8 @@ export const GET: RequestHandler = async () => {
 	const posts = await getPosts();
 
 	const entries: Entry[] = [
-		{ url: '', priority: '1.0', changefreq: 'weekly' },
-		{ url: '/about', priority: '0.8', changefreq: 'monthly' },
+		{ url: '', priority: '1.0', changefreq: 'weekly', lastmod: posts[0]?.date },
+		{ url: '/about', priority: '0.8', changefreq: 'monthly', lastmod: posts[0]?.date },
 		...posts.map((post) => ({
 			url: `/posts/${post.id}`,
 			lastmod: post.date,
@@ -26,7 +25,7 @@ export const GET: RequestHandler = async () => {
 ${entries
 	.map(
 		(entry) => `  <url>
-    <loc>${BASE}${entry.url}</loc>${entry.lastmod ? `\n    <lastmod>${entry.lastmod}</lastmod>` : ''}
+    <loc>${SITE_URL}${entry.url}</loc>${entry.lastmod ? `\n    <lastmod>${entry.lastmod}</lastmod>` : ''}
     <changefreq>${entry.changefreq}</changefreq>
     <priority>${entry.priority}</priority>
   </url>`

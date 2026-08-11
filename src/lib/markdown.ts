@@ -2,6 +2,7 @@ import { Marked, type TokenizerAndRendererExtension, type Tokens } from 'marked'
 import { parse as parseYaml } from 'yaml';
 import { common, createLowlight } from 'lowlight';
 import { toHtml } from 'hast-util-to-html';
+import type { Dimensions } from '$lib/image-size';
 
 const lowlight = createLowlight(common);
 
@@ -111,10 +112,20 @@ function generateExcerpt(markdown: string, length = 155): string {
 		.replace(/\s+/g, ' ')
 		.trim();
 
-	return text.length > length ? `${text.slice(0, length).trimEnd()}...` : text;
+	if (text.length <= length) return text;
+
+	// Cut back to a word boundary so the description does not end mid-word.
+	const clipped = text.slice(0, length);
+	const lastSpace = clipped.lastIndexOf(' ');
+	return `${(lastSpace > length * 0.6 ? clipped.slice(0, lastSpace) : clipped).trimEnd()}...`;
 }
 
-export function parseMarkdown(raw: string): ParsedPost {
+export type ParseOptions = {
+	/** Asset dimensions, so images can carry width and height and not reflow. */
+	assetSizes?: Map<string, Dimensions>;
+};
+
+export function parseMarkdown(raw: string, options: ParseOptions = {}): ParsedPost {
 	const { data, body } = parseFrontmatter(raw);
 	const title = String(data.title ?? '').replace(/^["']|["']$/g, '');
 	const headings: Heading[] = [];
@@ -148,11 +159,17 @@ export function parseMarkdown(raw: string): ParsedPost {
 			},
 			image({ href, title: imgTitle, text }) {
 				let src = href;
+				let asset: string | undefined;
 				if (href && !href.startsWith('http') && !href.startsWith('/')) {
-					src = `/posts/assets/${href.replace(/^\.\/assets\//, '').replace(/^assets\//, '')}`;
+					asset = href.replace(/^\.\/assets\//, '').replace(/^assets\//, '');
+					src = `/posts/assets/${asset}`;
 				}
+
+				const size = asset ? options.assetSizes?.get(asset) : undefined;
+				const dimensions = size ? ` width="${size.width}" height="${size.height}"` : '';
 				const titleAttr = imgTitle ? ` title="${escapeHtml(imgTitle)}"` : '';
-				return `<img src="${src}" alt="${escapeHtml(text || '')}"${titleAttr} loading="lazy" decoding="async" />`;
+
+				return `<img src="${src}" alt="${escapeHtml(text || '')}"${titleAttr}${dimensions} loading="lazy" decoding="async" />`;
 			},
 			link({ href, title: linkTitle, tokens }) {
 				const text = this.parser.parseInline(tokens);

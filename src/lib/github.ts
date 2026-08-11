@@ -1,4 +1,5 @@
 import { env } from '$env/dynamic/private';
+import { imageSize, type Dimensions } from '$lib/image-size';
 
 const REPOSITORY = 'ganhammar/ganhammar-posts';
 const API_URL = `https://api.github.com/repos/${REPOSITORY}`;
@@ -222,7 +223,31 @@ export async function getAssetNames(): Promise<string[]> {
 		.map((node) => node.path.slice(ASSET_PREFIX.length));
 }
 
-export async function getAsset(name: string): Promise<{ body: ArrayBuffer; contentType: string }> {
+type Asset = { body: ArrayBuffer; contentType: string };
+
+const assetCache = new Map<string, Promise<Asset>>();
+
+/**
+ * Pixel dimensions for every asset, keyed as getAssetNames keys them.
+ *
+ * Shares the cache with getAsset, so measuring an image does not pull it over
+ * the wire a second time.
+ */
+export async function getAssetSizes(): Promise<Map<string, Dimensions>> {
+	const names = await getAssetNames();
+	const sizes = new Map<string, Dimensions>();
+
+	await Promise.all(
+		names.map(async (name) => {
+			const size = imageSize((await getAsset(name)).body);
+			if (size) sizes.set(name, size);
+		})
+	);
+
+	return sizes;
+}
+
+export async function getAsset(name: string): Promise<Asset> {
 	// Keep any subdirectory, drop a leading ./ or assets/, and refuse to climb
 	// out of the assets folder.
 	const filename = name
@@ -231,6 +256,16 @@ export async function getAsset(name: string): Promise<{ body: ArrayBuffer; conte
 		.split('/')
 		.filter((segment) => segment && segment !== '.' && segment !== '..')
 		.join('/');
+
+	const cached = assetCache.get(filename);
+	if (cached) return cached;
+
+	const pending = loadAsset(filename);
+	assetCache.set(filename, pending);
+	return pending;
+}
+
+async function loadAsset(filename: string): Promise<Asset> {
 	const extension = filename.split('.').pop()?.toLowerCase() ?? '';
 
 	if (env.POSTS_DIR) {

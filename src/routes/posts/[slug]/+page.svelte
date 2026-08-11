@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Meta from '$lib/components/Meta.svelte';
+	import { AUTHOR, AUTHOR_URL, SITE_URL } from '$lib/site';
 	import type { PageServerData } from './$types';
 
 	let { data }: { data: PageServerData } = $props();
@@ -11,11 +12,11 @@
 			headline: data.title,
 			description: data.description,
 			datePublished: data.publishedTime,
-			author: { '@type': 'Person', name: 'Anton Ganhammar', url: 'https://ganhammar.se/about' },
-			publisher: { '@type': 'Person', name: 'Anton Ganhammar' },
+			author: { '@type': 'Person', name: AUTHOR, url: AUTHOR_URL },
+			publisher: { '@type': 'Person', name: AUTHOR },
 			mainEntityOfPage: {
 				'@type': 'WebPage',
-				'@id': `https://ganhammar.se/posts/${data.id}`
+				'@id': `${SITE_URL}/posts/${data.id}`
 			}
 		})
 	);

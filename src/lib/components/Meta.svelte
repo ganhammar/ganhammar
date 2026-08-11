@@ -1,5 +1,14 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import {
+		AUTHOR,
+		OG_IMAGE,
+		OG_IMAGE_HEIGHT,
+		OG_IMAGE_WIDTH,
+		SITE_DESCRIPTION,
+		SITE_NAME,
+		SITE_URL
+	} from '$lib/site';
 
 	interface Props {
 		title?: string;
@@ -11,39 +20,42 @@
 	}
 
 	let {
-		title = 'Ganhammar',
-		description = "Notes on serverless, .NET, and whatever I've just taken apart.",
+		title = SITE_NAME,
+		description = SITE_DESCRIPTION,
 		ogType = 'website',
 		publishedTime = undefined,
-		author = 'Anton Ganhammar',
+		author = AUTHOR,
 		canonicalUrl = undefined
 	}: Props = $props();
-
-	const BASE = 'https://ganhammar.se';
 
 	// A cross-posted piece points its canonical at the original; everything else
 	// points at itself. Prerendered pages have a stable pathname, so this is
 	// resolved once at build time.
-	const canonical = $derived(canonicalUrl ?? `${BASE}${page.url.pathname}`);
-	const fullTitle = $derived(title === 'Ganhammar' ? title : `${title} | Ganhammar`);
+	const canonical = $derived(canonicalUrl ?? `${SITE_URL}${page.url.pathname}`);
+	const fullTitle = $derived(title === SITE_NAME ? title : `${title} | ${SITE_NAME}`);
 </script>
 
 <svelte:head>
 	<title>{fullTitle}</title>
 	<meta name="description" content={description} />
 	<link rel="canonical" href={canonical} />
-	<link rel="alternate" type="application/rss+xml" title="Ganhammar" href="{BASE}/rss.xml" />
+	<link rel="alternate" type="application/rss+xml" title={SITE_NAME} href="{SITE_URL}/rss.xml" />
 
 	<meta property="og:type" content={ogType} />
 	<meta property="og:title" content={title} />
 	<meta property="og:description" content={description} />
 	<meta property="og:url" content={canonical} />
-	<meta property="og:site_name" content="Ganhammar" />
+	<meta property="og:site_name" content={SITE_NAME} />
 	<meta property="og:locale" content="en_US" />
+	<meta property="og:image" content={OG_IMAGE} />
+	<meta property="og:image:width" content={String(OG_IMAGE_WIDTH)} />
+	<meta property="og:image:height" content={String(OG_IMAGE_HEIGHT)} />
+	<meta property="og:image:alt" content="Ganhammar — notes on serverless and .NET" />
 
-	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content={title} />
 	<meta name="twitter:description" content={description} />
+	<meta name="twitter:image" content={OG_IMAGE} />
 
 	{#if ogType === 'article' && publishedTime}
 		<meta property="article:author" content={author} />
