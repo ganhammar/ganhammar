@@ -560,12 +560,20 @@ a {
 	color: var(--ink-3);
 }
 
-.prose img {
+.prose img,
+.prose video {
 	display: block;
 	max-width: 100%;
 	height: auto;
 	margin: 1.8em 0;
 	border: 1px solid var(--hair);
+}
+
+/* A GIF served as H.264: silent, looping, autoplaying, so it behaves as the
+   original did. Whether it actually plays is decided in app.html, which adds
+   controls if the browser or the reader's motion setting says no. */
+.prose video.motion {
+	background: #fff;
 }
 
 .prose hr {

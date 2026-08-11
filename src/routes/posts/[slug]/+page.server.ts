@@ -1,4 +1,5 @@
-import { getAssetSizes, getPosts, getPostSource } from '$lib/github';
+import { getAssetNames, getAssetSizes, getPosts, getPostSource } from '$lib/github';
+import { SITE_URL } from '$lib/site';
 import { parseMarkdown } from '$lib/markdown';
 import { error } from '@sveltejs/kit';
 import type { EntryGenerator, PageServerLoad } from './$types';
@@ -19,8 +20,17 @@ export const load: PageServerLoad = async ({ params }) => {
 	}
 
 	const parsed = parseMarkdown(await getPostSource(params.slug), {
-		assetSizes: await getAssetSizes()
+		assetSizes: await getAssetSizes(),
+		assetNames: new Set(await getAssetNames())
 	});
+
+	// A cover may be an absolute URL or an asset path; Open Graph needs it
+	// absolute either way.
+	const cover = parsed.cover
+		? /^https?:\/\//.test(parsed.cover)
+			? parsed.cover
+			: `${SITE_URL}/posts/assets/${parsed.cover.replace(/^\.\/assets\//, '').replace(/^assets\//, '')}`
+		: undefined;
 
 	// posts is newest-first, so the entry after this one in the array is older.
 	const newer = posts[index - 1];
@@ -35,6 +45,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		publishedTime: new Date(parsed.date).toISOString(),
 		readingTime: parsed.readingTime,
 		canonical: parsed.canonical,
+		cover,
 		headings: parsed.headings,
 		content: parsed.content,
 		newer: newer ? { id: newer.id, title: newer.title } : null,

@@ -15,6 +15,35 @@
 			does nothing else. It exits immediately on pages without a rail.
 		-->
 		<script>
+			// A GIF replaced by H.264 should behave like the GIF did. Autoplay can
+			// still be refused: Low Power Mode, a data saver, or the reader asking
+			// for less motion. In those cases it would sit on its poster frame with
+			// no way to start it, so give it controls.
+			(function () {
+				var clips = document.querySelectorAll('video.motion');
+				if (!clips.length) return;
+
+				var still =
+					window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+				Array.prototype.forEach.call(clips, function (clip) {
+					if (still) {
+						clip.autoplay = false;
+						clip.removeAttribute('autoplay');
+						clip.pause();
+						clip.controls = true;
+						return;
+					}
+
+					var attempt = clip.play();
+					if (attempt && typeof attempt.catch === 'function') {
+						attempt.catch(function () {
+							clip.controls = true;
+						});
+					}
+				});
+			})();
+
 			(function () {
 				var toc = document.querySelector('[data-toc]');
 				if (!toc || !('IntersectionObserver' in window)) return;

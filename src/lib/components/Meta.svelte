@@ -17,6 +17,7 @@
 		publishedTime?: string;
 		author?: string;
 		canonicalUrl?: string;
+		image?: string;
 	}
 
 	let {
@@ -25,13 +26,16 @@
 		ogType = 'website',
 		publishedTime = undefined,
 		author = AUTHOR,
-		canonicalUrl = undefined
+		canonicalUrl = undefined,
+		image = undefined
 	}: Props = $props();
 
 	// A cross-posted piece points its canonical at the original; everything else
 	// points at itself. Prerendered pages have a stable pathname, so this is
 	// resolved once at build time.
 	const canonical = $derived(canonicalUrl ?? `${SITE_URL}${page.url.pathname}`);
+	// A post with its own cover uses it; everything else gets the site card.
+	const ogImage = $derived(image ?? OG_IMAGE);
 	const fullTitle = $derived(title === SITE_NAME ? title : `${title} | ${SITE_NAME}`);
 </script>
 
@@ -47,15 +51,17 @@
 	<meta property="og:url" content={canonical} />
 	<meta property="og:site_name" content={SITE_NAME} />
 	<meta property="og:locale" content="en_US" />
-	<meta property="og:image" content={OG_IMAGE} />
-	<meta property="og:image:width" content={String(OG_IMAGE_WIDTH)} />
-	<meta property="og:image:height" content={String(OG_IMAGE_HEIGHT)} />
-	<meta property="og:image:alt" content="Ganhammar — notes on serverless and .NET" />
+	<meta property="og:image" content={ogImage} />
+	{#if !image}
+		<meta property="og:image:width" content={String(OG_IMAGE_WIDTH)} />
+		<meta property="og:image:height" content={String(OG_IMAGE_HEIGHT)} />
+	{/if}
+	<meta property="og:image:alt" content={image ? title : 'Ganhammar — notes on serverless and .NET'} />
 
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content={title} />
 	<meta name="twitter:description" content={description} />
-	<meta name="twitter:image" content={OG_IMAGE} />
+	<meta name="twitter:image" content={ogImage} />
 
 	{#if ogType === 'article' && publishedTime}
 		<meta property="article:author" content={author} />

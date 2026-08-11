@@ -28,6 +28,7 @@
 	ogType="article"
 	publishedTime={data.publishedTime}
 	canonicalUrl={data.canonical}
+	image={data.cover}
 />
 
 <svelte:head>

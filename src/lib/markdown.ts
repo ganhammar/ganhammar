@@ -15,6 +15,8 @@ export type ParsedPost = {
 	status: string;
 	description: string;
 	canonical?: string;
+	/** Social preview for this post, absolute or relative to posts/assets. */
+	cover?: string;
 	content: string;
 	headings: Heading[];
 	readingTime: number;
@@ -123,6 +125,8 @@ function generateExcerpt(markdown: string, length = 155): string {
 export type ParseOptions = {
 	/** Asset dimensions, so images can carry width and height and not reflow. */
 	assetSizes?: Map<string, Dimensions>;
+	/** Every published asset, used to spot a video beside an animated GIF. */
+	assetNames?: Set<string>;
 };
 
 export function parseMarkdown(raw: string, options: ParseOptions = {}): ParsedPost {
@@ -168,8 +172,28 @@ export function parseMarkdown(raw: string, options: ParseOptions = {}): ParsedPo
 				const size = asset ? options.assetSizes?.get(asset) : undefined;
 				const dimensions = size ? ` width="${size.width}" height="${size.height}"` : '';
 				const titleAttr = imgTitle ? ` title="${escapeHtml(imgTitle)}"` : '';
+				const alt = escapeHtml(text || '');
 
-				return `<img src="${src}" alt="${escapeHtml(text || '')}"${titleAttr}${dimensions} loading="lazy" decoding="async" />`;
+				// An animated GIF is served as H.264 when an .mp4 of the same name
+				// has been committed beside it. The post still says `![](...gif)`,
+				// so GitHub and the cross-posts keep showing the GIF, and the
+				// original stays as the fallback for anything that cannot play it.
+				const video = asset?.replace(/\.gif$/i, '.mp4');
+				if (asset && video && video !== asset && options.assetNames?.has(video)) {
+					const poster = asset.replace(/\.gif$/i, '-poster.jpg');
+					const posterAttr = options.assetNames?.has(poster)
+						? ` poster="/posts/assets/${poster}"`
+						: '';
+					return (
+						`<video class="motion" autoplay loop muted playsinline preload="metadata"` +
+						`${posterAttr}${dimensions} aria-label="${alt}">` +
+						`<source src="/posts/assets/${video}" type="video/mp4" />` +
+						`<img src="${src}" alt="${alt}"${dimensions} loading="lazy" decoding="async" />` +
+						`</video>`
+					);
+				}
+
+				return `<img src="${src}" alt="${alt}"${titleAttr}${dimensions} loading="lazy" decoding="async" />`;
 			},
 			link({ href, title: linkTitle, tokens }) {
 				const text = this.parser.parseInline(tokens);
@@ -196,6 +220,7 @@ export function parseMarkdown(raw: string, options: ParseOptions = {}): ParsedPo
 		status: String(data.status ?? 'draft'),
 		description: String(data.description ?? '') || generateExcerpt(withoutDuplicateTitle),
 		canonical: data.canonical ? String(data.canonical) : undefined,
+		cover: data.cover ? String(data.cover) : undefined,
 		content,
 		headings,
 		readingTime: Math.max(1, Math.ceil(words / 200))

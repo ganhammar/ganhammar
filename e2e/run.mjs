@@ -99,6 +99,58 @@ await check('images point at deployed assets', async () => {
 	assert.equal(asset.status, 200, `asset ${src} should be part of the build`);
 });
 
+await check('an animated gif is upgraded to video with the gif still behind it', async () => {
+	const { body } = await get(
+		'/posts/building-a-centaur-chess-app-with-agentcore-runtime-and-strands-agents'
+	);
+	const video = body.match(/<video[\s\S]{0,600}?<\/video>/);
+	assert.ok(video, 'expected a <video> where the post references a gif');
+
+	const markup = video[0];
+	for (const attribute of ['autoplay', 'loop', 'muted', 'playsinline']) {
+		assert.match(markup, new RegExp(attribute), `video should carry ${attribute}`);
+	}
+	assert.match(markup, /<source src="[^"]+\.mp4"/, 'should serve an mp4');
+	assert.match(markup, /<img src="[^"]+\.gif"/, 'the gif should remain as fallback content');
+	assert.match(markup, /poster="[^"]+"/, 'should have a poster frame');
+
+	for (const path of [
+		'/posts/assets/centaur-chess-game-screenshot.mp4',
+		'/posts/assets/centaur-chess-game-screenshot.gif'
+	]) {
+		assert.equal((await get(path)).status, 200, `${path} should be deployed`);
+	}
+});
+
+await check('a post with a cover uses it as the social image', async () => {
+	const withCover = await get(
+		'/posts/building-a-centaur-chess-app-with-agentcore-runtime-and-strands-agents'
+	);
+	assert.match(withCover.body, /property="og:image" content="[^"]*centaur-chess-cover\.jpg"/);
+
+	const withoutCover = await get('/posts/dotnet-8-aot-aws-lambda');
+	assert.match(withoutCover.body, /property="og:image" content="[^"]*\/og\.png"/);
+});
+
+await check('canonical urls all point at the www host', async () => {
+	for (const path of ['/', '/about', '/posts/dotnet-8-aot-aws-lambda']) {
+		const { body } = await get(path);
+		const canonical = body.match(/<link rel="canonical" href="([^"]+)"/)[1];
+		assert.match(canonical, /^https:\/\/www\.ganhammar\.se/, `${path} canonical is ${canonical}`);
+	}
+	assert.match((await get('/robots.txt')).body, /Sitemap: https:\/\/www\.ganhammar\.se/);
+	assert.doesNotMatch((await get('/sitemap.xml')).body, /<loc>https:\/\/ganhammar\.se/);
+});
+
+await check('images declare their dimensions', async () => {
+	const { body } = await get('/posts/blazingly-fast-serverless-note-app-part-1');
+	const images = [...body.matchAll(/<img [^>]*src="\/posts\/assets\/[^>]*>/g)].map((m) => m[0]);
+	assert.ok(images.length > 0, 'expected at least one post image');
+	for (const image of images) {
+		assert.match(image, /width="\d+" height="\d+"/, `missing dimensions: ${image}`);
+	}
+});
+
 await check('feeds are generated', async () => {
 	const sitemap = await get('/sitemap.xml');
 	assert.equal(sitemap.status, 200);
