@@ -82,7 +82,7 @@
 		<header class="article-head">
 			<p class="entry-no">
 				{#if data.draft}
-					<b class="draft-flag">Draft</b> · not listed, not indexed ·
+					<b class="draft-flag">Draft</b> · No. TBD ·
 				{:else}
 					Entry <b>No. {String(data.entry).padStart(2, '0')}</b> ·
 				{/if}
