@@ -3,7 +3,12 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+		<!--
+			The version is a cache key, not a build artefact. Cloudflare fronts the
+			distribution and a deploy cannot purge it, so a replaced icon needs a
+			new URL to be picked up. Bump it whenever favicon.svg changes.
+		-->
+		<link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
 
 		<!--
 			Runs before first paint, deliberately blocking, so a reader who chose a

@@ -119,10 +119,16 @@ export class GanhammarStack extends cdk.Stack {
 			distribution,
 			distributionPaths: ['/*'],
 			prune: true,
+			// s-maxage is deliberately short. CloudFront is invalidated on every
+			// deploy so it does not need a long one, and it is not the only shared
+			// cache in the path: Cloudflare sits in front of this distribution and
+			// honours s-maxage too, without any way for a deploy to purge it. A
+			// year here meant a replaced file could stay stale for a year.
+			// Fingerprinted assets are exempt via the response headers policy above.
 			cacheControl: [
 				s3deploy.CacheControl.setPublic(),
 				s3deploy.CacheControl.maxAge(cdk.Duration.minutes(5)),
-				s3deploy.CacheControl.sMaxAge(cdk.Duration.days(365))
+				s3deploy.CacheControl.sMaxAge(cdk.Duration.hours(1))
 			],
 			memoryLimit: 512
 		});
