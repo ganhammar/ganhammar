@@ -41,7 +41,7 @@
 
 <div class="paper-grid">
 	<aside class="rail">
-		<div class="rail-block" data-role="meta">
+		<div class="rail-block" data-role="entry">
 			<h2>Entry</h2>
 			<dl>
 				<dt>Published</dt>
@@ -87,6 +87,9 @@
 					Entry <b>No. {String(data.entry).padStart(2, '0')}</b> ·
 				{/if}
 				<time datetime={data.publishedTime}>{data.date}</time>
+				<!-- On a phone the rail is hidden, so the reading time joins the
+				     line that already carries the date. -->
+				<span class="reading-inline"> · {data.readingTime} min</span>
 			</p>
 			<h1>{data.title}</h1>
 			{#if data.canonical}

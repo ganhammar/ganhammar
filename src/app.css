@@ -372,6 +372,16 @@ a {
 	min-width: 0;
 }
 
+/* The measure lives here, in the reading font, so `ch` is resolved once and
+   the title, the meta line and the body all wrap to the same width. Setting
+   it per element meant each one measured `ch` in its own font and they never
+   lined up. */
+.paper-grid > article {
+	font-family: var(--body);
+	font-size: clamp(1.04rem, 1.3vw, 1.13rem);
+	max-width: var(--measure);
+}
+
 .rail {
 	position: sticky;
 	top: 26px;
@@ -471,6 +481,10 @@ a {
 	margin-bottom: 12px;
 }
 
+.reading-inline {
+	display: none;
+}
+
 .entry-no b {
 	color: var(--accent);
 	font-weight: 400;
@@ -490,7 +504,6 @@ a {
 	line-height: 1.16;
 	letter-spacing: -0.008em;
 	margin: 0;
-	max-width: 24ch;
 }
 
 .crosspost {
@@ -505,7 +518,6 @@ a {
 /* ---------- prose ---------- */
 
 .prose {
-	max-width: var(--measure);
 	position: relative;
 	counter-reset: sec;
 	font-family: var(--body);
@@ -841,6 +853,7 @@ a {
 @media (max-width: 900px) {
 	.paper-grid {
 		grid-template-columns: 1fr;
+		gap: 16px;
 	}
 
 	/* No margin to stand in, so the rail stops being a column and its blocks
@@ -862,6 +875,38 @@ a {
 
 	.rail-block[data-role='toc'] {
 		display: none;
+	}
+
+	/* The entry facts are dropped rather than compacted: the date is already in
+	   the line under them and the reading time moves up to join it, so keeping
+	   the block would only repeat itself. */
+	.rail-block[data-role='entry'] {
+		display: none;
+	}
+
+	.reading-inline {
+		display: inline;
+	}
+
+	/* The about page's details are not repeated anywhere, so those stay and
+	   just run inline instead of stacking. */
+	.rail-block[data-role='meta'] {
+		margin-bottom: 0;
+	}
+
+	.rail-block[data-role='meta'] h2 {
+		display: none;
+	}
+
+	.rail-block[data-role='meta'] dt,
+	.rail-block[data-role='meta'] dd {
+		display: inline;
+		margin: 0;
+	}
+
+	.rail-block[data-role='meta'] dt:not(:first-child)::before {
+		content: ' · ';
+		color: var(--hair);
 	}
 
 	.rail-block[data-role='nav'] {
