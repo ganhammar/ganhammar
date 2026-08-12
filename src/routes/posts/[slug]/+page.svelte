@@ -29,10 +29,14 @@
 	publishedTime={data.publishedTime}
 	canonicalUrl={data.canonical}
 	image={data.cover}
+	noindex={data.draft}
 />
 
 <svelte:head>
-	{@html `<script type="application/ld+json">${articleSchema}</script>`}
+	<!-- A draft is not a published article, so it gets no BlogPosting markup. -->
+	{#if !data.draft}
+		{@html `<script type="application/ld+json">${articleSchema}</script>`}
+	{/if}
 </svelte:head>
 
 <div class="paper-grid">
@@ -77,7 +81,11 @@
 	<article>
 		<header class="article-head">
 			<p class="entry-no">
-				Entry <b>No. {String(data.entry).padStart(2, '0')}</b> ·
+				{#if data.draft}
+					<b class="draft-flag">Draft</b> · not listed, not indexed ·
+				{:else}
+					Entry <b>No. {String(data.entry).padStart(2, '0')}</b> ·
+				{/if}
 				<time datetime={data.publishedTime}>{data.date}</time>
 			</p>
 			<h1>{data.title}</h1>

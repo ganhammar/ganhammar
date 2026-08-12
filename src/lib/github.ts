@@ -173,6 +173,17 @@ export async function getPosts(): Promise<Post[]> {
 		});
 }
 
+/**
+ * Every slug in the repository, drafts included.
+ *
+ * Drafts are prerendered so they can be opened directly by anyone who knows
+ * the URL, but they are kept out of getPosts, which is what the index, the
+ * sitemap, the feed and the prev/next links are built from.
+ */
+export async function getAllSlugs(): Promise<string[]> {
+	return [...(await loadSources()).keys()];
+}
+
 export async function getPostSource(slug: string): Promise<string> {
 	const sources = await loadSources();
 	const raw = sources.get(slug);

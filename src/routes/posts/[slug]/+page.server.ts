@@ -1,28 +1,40 @@
-import { getAssetNames, getAssetSizes, getPosts, getPostSource } from '$lib/github';
+import { getAllSlugs, getAssetNames, getAssetSizes, getPosts, getPostSource } from '$lib/github';
 import { SITE_URL } from '$lib/site';
 import { parseMarkdown } from '$lib/markdown';
 import { error } from '@sveltejs/kit';
 import type { EntryGenerator, PageServerLoad } from './$types';
 
-// Tells the prerenderer which slugs exist, so every post is written to disk at
-// build time instead of being resolved on request.
+// Every slug is written to disk at build time, drafts included, so a draft can
+// be opened by anyone who has the URL. What keeps it unpublished is that it is
+// absent from the index, the sitemap and the feed, and that the page tells
+// crawlers not to index it.
 export const entries: EntryGenerator = async () => {
-	const posts = await getPosts();
-	return posts.map((post) => ({ slug: post.id }));
+	const slugs = await getAllSlugs();
+	return slugs.map((slug) => ({ slug }));
 };
 
 export const load: PageServerLoad = async ({ params }) => {
-	const posts = await getPosts();
-	const index = posts.findIndex((post) => post.id === params.slug);
-
-	if (index === -1) {
+	let source: string;
+	try {
+		source = await getPostSource(params.slug);
+	} catch {
 		error(404, 'Post not found');
 	}
 
-	const parsed = parseMarkdown(await getPostSource(params.slug), {
+	const parsed = parseMarkdown(source, {
 		assetSizes: await getAssetSizes(),
 		assetNames: new Set(await getAssetNames())
 	});
+
+	const draft = parsed.status !== 'published';
+
+	// Published posts are numbered and linked to their neighbours. A draft has
+	// neither: it has not taken a number yet, and it should not appear in the
+	// walk through the archive.
+	const posts = draft ? [] : await getPosts();
+	const index = posts.findIndex((post) => post.id === params.slug);
+	const newer = index > 0 ? posts[index - 1] : undefined;
+	const older = index >= 0 ? posts[index + 1] : undefined;
 
 	// A cover may be an absolute URL or an asset path; Open Graph needs it
 	// absolute either way.
@@ -32,13 +44,10 @@ export const load: PageServerLoad = async ({ params }) => {
 			: `${SITE_URL}/posts/assets/${parsed.cover.replace(/^\.\/assets\//, '').replace(/^assets\//, '')}`
 		: undefined;
 
-	// posts is newest-first, so the entry after this one in the array is older.
-	const newer = posts[index - 1];
-	const older = posts[index + 1];
-
 	return {
-		id: posts[index].id,
-		entry: posts[index].entry,
+		id: parsed.id || params.slug,
+		entry: index >= 0 ? posts[index].entry : null,
+		draft,
 		title: parsed.title,
 		description: parsed.description,
 		date: parsed.date,

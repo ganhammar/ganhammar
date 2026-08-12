@@ -151,6 +151,30 @@ await check('images declare their dimensions', async () => {
 	}
 });
 
+await check('a draft is reachable by url but kept out of everything else', async () => {
+	const slug = 'who-approved-this-delegated-authorization-for-ai-agents';
+
+	const { status, body } = await get(`/posts/${slug}`);
+	assert.equal(status, 200, 'a draft should still render at its own url');
+	assert.match(body, /class="prose"/, 'draft body should be rendered');
+	assert.match(body, /name="robots" content="noindex, nofollow"/, 'draft must not be indexable');
+	assert.doesNotMatch(body, /BlogPosting/, 'a draft should not claim to be a published article');
+
+	assert.doesNotMatch((await get('/')).body, new RegExp(slug), 'draft must not be listed');
+	assert.doesNotMatch((await get('/sitemap.xml')).body, new RegExp(slug), 'not in the sitemap');
+	assert.doesNotMatch((await get('/rss.xml')).body, new RegExp(slug), 'not in the feed');
+
+	// Neighbouring published posts must not link into it either.
+	const newest = await get('/posts/building-a-centaur-chess-app-with-agentcore-runtime-and-strands-agents');
+	assert.doesNotMatch(newest.body, new RegExp(slug), 'published posts should not link to a draft');
+});
+
+await check('published posts are indexable', async () => {
+	const { body } = await get('/posts/dotnet-8-aot-aws-lambda');
+	assert.doesNotMatch(body, /name="robots"/, 'a published post should carry no robots restriction');
+	assert.match(body, /BlogPosting/);
+});
+
 await check('feeds are generated', async () => {
 	const sitemap = await get('/sitemap.xml');
 	assert.equal(sitemap.status, 200);

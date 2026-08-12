@@ -476,6 +476,13 @@ a {
 	font-weight: 400;
 }
 
+.entry-no .draft-flag {
+	background: var(--accent);
+	color: var(--paper);
+	padding: 2px 7px 3px;
+	letter-spacing: 0.2em;
+}
+
 .article-head h1 {
 	font-family: var(--body);
 	font-weight: 400;

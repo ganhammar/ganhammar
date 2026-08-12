@@ -18,6 +18,7 @@
 		author?: string;
 		canonicalUrl?: string;
 		image?: string;
+		noindex?: boolean;
 	}
 
 	let {
@@ -27,7 +28,8 @@
 		publishedTime = undefined,
 		author = AUTHOR,
 		canonicalUrl = undefined,
-		image = undefined
+		image = undefined,
+		noindex = false
 	}: Props = $props();
 
 	// A cross-posted piece points its canonical at the original; everything else
@@ -42,6 +44,9 @@
 <svelte:head>
 	<title>{fullTitle}</title>
 	<meta name="description" content={description} />
+	{#if noindex}
+		<meta name="robots" content="noindex, nofollow" />
+	{/if}
 	<link rel="canonical" href={canonical} />
 	<link rel="alternate" type="application/rss+xml" title={SITE_NAME} href="{SITE_URL}/rss.xml" />
 
