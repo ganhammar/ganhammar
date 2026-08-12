@@ -4,58 +4,46 @@ Posts are markdown in [ganhammar/ganhammar-posts](https://github.com/ganhammar/g
 The site reads them once, at build time, and prerenders every page to a static
 file. Nothing here reads the posts repo at request time.
 
-That means **pushing a post does not publish it**. The site has to rebuild.
+So a push to the posts repo has to rebuild this one. That is wired up: a
+workflow there fires a `repository_dispatch` at `ganhammar/ganhammar`, which
+the `CI-CD` workflow listens for as `posts-updated`.
 
-## Making the posts repo trigger a rebuild
-
-Add this workflow to the **posts** repository as
-`.github/workflows/publish.yml`:
-
-```yaml
-name: Publish
-
-on:
-  push:
-    branches: [main]
-    paths:
-      - 'posts/**'
-
-jobs:
-  rebuild-site:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger site rebuild
-        env:
-          GH_TOKEN: ${{ secrets.SITE_DISPATCH_TOKEN }}
-        run: |
-          gh api repos/ganhammar/ganhammar/dispatches \
-            --field event_type=posts-updated
+```
+push to posts/**  ──►  publish.yml (posts repo)  ──►  repository_dispatch
+                                                          │
+                       CI-CD (this repo): build, test, deploy, smoke  ◄┘
 ```
 
-`SITE_DISPATCH_TOKEN` is a fine-grained personal access token with **Contents:
-read and write** on `ganhammar/ganhammar` only. That is the permission
-`repository_dispatch` requires; it does not need access to anything else.
+The dispatch is authenticated with `GANHAMMAR_CONTENTS_TOKEN`, a secret in the
+**posts** repo holding a fine-grained PAT with **Contents: read and write** on
+`ganhammar/ganhammar` only. Both halves are easy to get backwards: the token is
+scoped to the repo being triggered, and the secret lives in the repo doing the
+triggering.
 
-The site workflow already listens for `posts-updated`.
+## Publishing
 
-## If the trigger is not set up
+Set `status: published` in the frontmatter and push. The site rebuilds and the
+post appears.
 
-Three fallbacks, in order of convenience:
+A post with `status: draft` is prerendered too, so it can be opened directly at
+`/posts/<id>`, but it is left out of the index, the sitemap and the feed, it is
+skipped by the prev/next links, and it carries `noindex, nofollow`. It takes no
+entry number until it is published.
 
-1. The site rebuilds on a daily schedule (05:17 UTC), so a new post appears
-   within a day on its own.
-2. Run the `CI-CD` workflow manually from the Actions tab.
-3. Push anything to the site repo.
+## If nothing happens
 
-## Checking a draft first
+1. Check the Publish run in the posts repo. A red run means the token expired
+   or lost access.
+2. Run `CI-CD` manually from this repo's Actions tab, or Publish from the posts
+   repo, which does the same thing without a content change.
+3. Failing both, the site rebuilds on a schedule at 05:17 UTC daily.
 
-`status: draft` in the frontmatter keeps a post out of the build entirely. To
-see how a finished post will look before pushing it:
+## Checking a draft before pushing
 
 ```bash
 POSTS_DIR=../ganhammar-posts npm run dev
 ```
 
-That reads the posts from disk instead of the API, so drafts and unpushed edits
-render exactly as they will in production. See
-[margin-notes.md](margin-notes.md) for the aside syntax.
+Reads the posts from disk instead of the API, so unpushed edits render as they
+will in production. See [margin-notes.md](margin-notes.md) for the aside
+syntax.
