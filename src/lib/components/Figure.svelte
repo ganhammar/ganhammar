@@ -81,44 +81,29 @@
 
 <figure class="figure">
 	<svg {viewBox} role="img" aria-label="Exploded view of the delivery path for a page request">
-		<g fill="none" stroke="#9ba1a7" stroke-width=".7" stroke-dasharray="14 4 2.5 4">
+		<g class="centreline">
 			<line x1={CX} y1={top} x2={CX} y2={bottom} />
 		</g>
 
 		{#each plates as plate (plate.n)}
-			<polygon points={plate.left} fill="#eeeff0" stroke="#14161a" stroke-width="1" />
-			<polygon points={plate.right} fill="#eeeff0" stroke="#14161a" stroke-width="1" />
-			<polygon points={plate.top} fill="#fbfbf9" stroke="#14161a" stroke-width="1" />
+			<polygon class="plate-side" points={plate.left} />
+			<polygon class="plate-side" points={plate.right} />
+			<polygon class="plate-top" points={plate.top} />
 
-			<path d={plate.leader} fill="none" stroke="#14161a" stroke-width=".6" />
-			<circle cx={plate.dot[0]} cy={plate.dot[1]} r="2.1" fill="#14161a" />
-			<text
-				x={LEADER_X + 9}
-				y={plate.labelY - 13}
-				font-size="17"
-				letter-spacing=".06em"
-				fill="#14161a">{plate.n}</text
-			>
-			<text
-				x={LEADER_X + 9}
-				y={plate.labelY + 3}
-				font-size="12.4"
-				letter-spacing=".16em"
-				fill="#565b62">{plate.label.toUpperCase()}</text
-			>
+			<path class="leader" d={plate.leader} />
+			<circle class="marker" cx={plate.dot[0]} cy={plate.dot[1]} r="2.1" />
+			<text class="numeral" x={LEADER_X + 9} y={plate.labelY - 13}>{plate.n}</text>
+			<text class="part-label" x={LEADER_X + 9} y={plate.labelY + 3}>
+				{plate.label.toUpperCase()}
+			</text>
 
 			{#if plate.arrow}
+				<path class="flow" d="M{CX},{plate.arrow.top.toFixed(1)} L{CX},{plate.arrow.tip.toFixed(1)}" />
 				<path
-					d="M{CX},{plate.arrow.top.toFixed(1)} L{CX},{plate.arrow.tip.toFixed(1)}"
-					fill="none"
-					stroke="#9ba1a7"
-					stroke-width=".5"
-				/>
-				<path
+					class="marker"
 					d="M{CX - 3.4},{(plate.arrow.tip - 5).toFixed(1)} L{CX + 3.4},{(
 						plate.arrow.tip - 5
 					).toFixed(1)} L{CX},{plate.arrow.tip.toFixed(1)} Z"
-					fill="#14161a"
 				/>
 			{/if}
 		{/each}
@@ -127,7 +112,55 @@
 </figure>
 
 <style>
+	/* Every colour comes from a token so the drawing follows the theme. */
 	svg text {
-		font-family: 'Avenir Next Condensed', 'Helvetica Neue', 'Segoe UI', system-ui, sans-serif;
+		font-family: var(--label);
+	}
+
+	.plate-top {
+		fill: var(--paper);
+		stroke: var(--ink);
+		stroke-width: 1;
+	}
+
+	.plate-side {
+		fill: var(--plate-side);
+		stroke: var(--ink);
+		stroke-width: 1;
+	}
+
+	.centreline {
+		fill: none;
+		stroke: var(--ink-3);
+		stroke-width: 0.7;
+		stroke-dasharray: 14 4 2.5 4;
+	}
+
+	.leader {
+		fill: none;
+		stroke: var(--ink);
+		stroke-width: 0.6;
+	}
+
+	.flow {
+		fill: none;
+		stroke: var(--ink-3);
+		stroke-width: 0.5;
+	}
+
+	.marker {
+		fill: var(--ink);
+	}
+
+	.numeral {
+		font-size: 17px;
+		letter-spacing: 0.06em;
+		fill: var(--ink);
+	}
+
+	.part-label {
+		font-size: 12.4px;
+		letter-spacing: 0.16em;
+		fill: var(--ink-2);
 	}
 </style>

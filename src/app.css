@@ -15,6 +15,16 @@
 	--hair: #d8dade;
 	--accent: #c8321e;
 
+	/* Surfaces and syntax hues, named so a theme only restates values. */
+	--code-bg: #ffffff;
+	--code-inline-bg: #f1f0ec;
+	--plate-side: #eeeff0;
+	--syn-string: #2c6b4f;
+	--syn-number: #7a5aa8;
+	--syn-type: #1f5673;
+
+	color-scheme: light;
+
 	--label: 'Avenir Next Condensed', 'Helvetica Neue', 'Segoe UI', system-ui, sans-serif;
 	--body: Charter, 'Bitstream Charter', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia,
 		serif;
@@ -27,6 +37,54 @@
 	--gutter: clamp(28px, 4vw, 52px);
 	--measure: 60ch;
 	--note: 200px;
+}
+
+/*
+ * Dark is not an inversion of the sheet. Pure white on pure black glares, and
+ * the drawing would lose its weight, so the ground is a soft near-black, the
+ * text an off-white with the paper's warmth kept in it, and the accent lifted
+ * far enough to stay legible against the dark.
+ *
+ * Three states, hence the block twice: follow the system by default, but let
+ * an explicit choice win in either direction. `:not([data-theme='light'])`
+ * is what stops a system-dark machine overriding someone who asked for light.
+ */
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme='light']) {
+		--paper: #15171a;
+		--ink: #e6e4df;
+		--ink-2: #a5a29b;
+		--ink-3: #6e6c67;
+		--hair: #2b2e33;
+		--accent: #e8674e;
+
+		--code-bg: #1b1e22;
+		--code-inline-bg: #23262b;
+		--plate-side: #23262b;
+		--syn-string: #7fbf9a;
+		--syn-number: #b79ae0;
+		--syn-type: #79b0cc;
+
+		color-scheme: dark;
+	}
+}
+
+:root[data-theme='dark'] {
+	--paper: #15171a;
+	--ink: #e6e4df;
+	--ink-2: #a5a29b;
+	--ink-3: #6e6c67;
+	--hair: #2b2e33;
+	--accent: #e8674e;
+
+	--code-bg: #1b1e22;
+	--code-inline-bg: #23262b;
+	--plate-side: #23262b;
+	--syn-string: #7fbf9a;
+	--syn-number: #b79ae0;
+	--syn-type: #79b0cc;
+
+	color-scheme: dark;
 }
 
 *,
@@ -200,6 +258,40 @@ a {
 .mainnav a[aria-current='page'] {
 	color: var(--accent);
 	border-color: var(--accent);
+}
+
+/* The switch only appears once the bootstrap script has run, so it is never
+   offered to a reader who could not use it. */
+.theme-toggle {
+	display: none;
+	margin-left: auto;
+	appearance: none;
+	background: none;
+	border: 0;
+	border-bottom: 1px solid transparent;
+	padding: 0 0 2px;
+	color: var(--ink-3);
+	cursor: pointer;
+	line-height: 1;
+	transition:
+		color 0.18s,
+		border-color 0.18s;
+}
+
+:root[data-js] .theme-toggle {
+	display: inline-flex;
+	align-items: center;
+}
+
+.theme-toggle:hover {
+	color: var(--ink);
+	border-color: var(--ink);
+}
+
+.theme-toggle svg {
+	display: block;
+	width: 14px;
+	height: 14px;
 }
 
 /* ---------- footer ---------- */
@@ -599,7 +691,7 @@ a {
    original did. Whether it actually plays is decided in app.html, which adds
    controls if the browser or the reader's motion setting says no. */
 .prose video.motion {
-	background: #fff;
+	background: var(--code-bg);
 }
 
 .prose hr {
@@ -643,7 +735,7 @@ a {
 .prose :not(pre) > code {
 	font-family: var(--mono);
 	font-size: 0.86em;
-	background: #f1f0ec;
+	background: var(--code-inline-bg);
 	border: 1px solid var(--hair);
 	padding: 0.08em 0.32em;
 }
@@ -727,7 +819,7 @@ a {
 	padding: 16px 18px;
 	overflow-x: auto;
 	border: 1px solid var(--ink);
-	background: #fff;
+	background: var(--code-bg);
 	font-family: var(--mono);
 	font-size: 0.82rem;
 	line-height: 1.62;
@@ -762,14 +854,14 @@ a {
 .hljs-addition,
 .hljs-attribute,
 .hljs-meta .hljs-string {
-	color: #2c6b4f;
+	color: var(--syn-string);
 }
 
 .hljs-number,
 .hljs-symbol,
 .hljs-bullet,
 .hljs-link {
-	color: #7a5aa8;
+	color: var(--syn-number);
 }
 
 .hljs-title,
@@ -787,7 +879,7 @@ a {
 .hljs-built_in,
 .hljs-class .hljs-title,
 .hljs-params {
-	color: #1f5673;
+	color: var(--syn-type);
 }
 
 .hljs-attr,

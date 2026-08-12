@@ -24,9 +24,20 @@ onto the `about.html` key in the bucket. It lives in
 the local server and the tests, so the rule is verified rather than duplicated.
 
 A page carries no framework JavaScript. `csr: false` means nothing hydrates,
-and the stylesheet is inlined, so a cold visit is a single request. The one
-script on the site is a few lines in `app.html` that highlight the current
-section in the contents rail.
+and the stylesheet is inlined, so a cold visit is a single request. The only
+scripts are a few inline lines in `app.html`: a theme bootstrap in the head,
+the theme switch, the contents-rail highlighting, and the fallback that gives
+a clip controls when autoplay is refused. Together they are well under a
+kilobyte and none of them is fetched.
+
+## Theming
+
+Light by default, following `prefers-color-scheme`, with a switch in the
+header that overrides it either way and remembers the choice. The palette is a
+set of tokens restated in two extra rules, one for a dark system without an
+explicit light choice and one for an explicit dark choice, so a reader's pick
+always wins over their operating system. The bootstrap runs before the
+stylesheet, so a stored choice never flashes the other theme first.
 
 ## Reading from the posts repo
 

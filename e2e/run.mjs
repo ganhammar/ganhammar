@@ -175,6 +175,26 @@ await check('published posts are indexable', async () => {
 	assert.match(body, /BlogPosting/);
 });
 
+await check('the theme has all three states and a switch to drive them', async () => {
+	const { body } = await get('/');
+
+	// System by default, and an explicit choice that wins in either direction.
+	assert.match(body, /@media\s*\(prefers-color-scheme:\s*dark\)/, 'should follow the system');
+	assert.match(body, /:root:not\(\[data-theme=light\]\)/, 'explicit light must beat a dark system');
+	assert.match(body, /:root\[data-theme=dark\]/, 'explicit dark must beat a light system');
+
+	// Set before the stylesheet so a stored choice never flashes the other theme.
+	const head = body.slice(0, body.indexOf('</head>'));
+	assert.match(head, /localStorage\.getItem\('theme'\)/, 'bootstrap belongs in the head');
+	assert.ok(
+		head.indexOf('localStorage') < head.indexOf('<style>'),
+		'bootstrap must run before the stylesheet'
+	);
+
+	assert.match(body, /data-theme-toggle/, 'the switch should be in the markup');
+	assert.match(body, /\[data-js\] \.theme-toggle/, 'and hidden until the script has run');
+});
+
 await check('feeds are generated', async () => {
 	const sitemap = await get('/sitemap.xml');
 	assert.equal(sitemap.status, 200);
