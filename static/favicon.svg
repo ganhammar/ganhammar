@@ -1,6 +1,35 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" fill="#fbfbf9"/>
-  <rect x="2.5" y="2.5" width="27" height="27" fill="none" stroke="#14161a" stroke-width="1.6"/>
-  <path d="M7 12h18M7 17h18M7 22h11" stroke="#14161a" stroke-width="2.2" stroke-linecap="square"/>
-  <circle cx="23.5" cy="22" r="2.4" fill="#c8321e"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!--
+    The icon carries its own palette. An SVG favicon is rendered as a document,
+    so its own media query decides the colours: a light sheet in light chrome, a
+    dark one in dark chrome, instead of a white tile burned into a dark toolbar.
+
+    Colours are applied through CSS rules, not fill/stroke attributes, because
+    var() is not resolved in a presentation attribute.
+  -->
+  <style>
+    :root {
+      --paper: #fbfbf9;
+      --ink: #14161a;
+      --accent: #c8321e;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #15171a;
+        --ink: #e6e4df;
+        --accent: #e8674e;
+      }
+    }
+
+    .paper { fill: var(--paper); }
+    .frame { fill: none; stroke: var(--ink); stroke-width: 1.6; }
+    .rules { fill: none; stroke: var(--ink); stroke-width: 2.2; stroke-linecap: square; }
+    .mark  { fill: var(--accent); }
+  </style>
+
+  <rect class="paper" width="32" height="32"/>
+  <rect class="frame" x="2.5" y="2.5" width="27" height="27"/>
+  <path class="rules" d="M7 12h18M7 17h18M7 22h11"/>
+  <circle class="mark" cx="23.5" cy="22" r="2.4"/>
 </svg>
