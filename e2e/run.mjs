@@ -195,6 +195,22 @@ await check('the theme has all three states and a switch to drive them', async (
 	assert.match(body, /\[data-js\] \.theme-toggle/, 'and hidden until the script has run');
 });
 
+await check('images can be enlarged, and only where that can work', async () => {
+	const { body } = await get(
+		'/posts/building-a-centaur-chess-app-with-agentcore-runtime-and-strands-agents'
+	);
+
+	assert.match(body, /HTMLDialogElement/, 'the lightbox should use a native dialog');
+	assert.match(body, /\.lightbox::backdrop/, 'and style its backdrop');
+	assert.match(body, /img\.zoomable/, 'clickability is advertised only once upgraded');
+
+	// The markup stays plain: nothing is marked clickable at build time, so a
+	// reader without the script is never shown an interaction that is absent.
+	const prose = body.slice(body.indexOf('class="prose"'));
+	assert.doesNotMatch(prose.slice(0, 4000), /<img[^>]*role="button"/, 'no baked-in affordance');
+	assert.doesNotMatch(prose.slice(0, 4000), /<img[^>]*zoomable/, 'no baked-in class');
+});
+
 await check('feeds are generated', async () => {
 	const sitemap = await get('/sitemap.xml');
 	assert.equal(sitemap.status, 200);

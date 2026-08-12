@@ -22,6 +22,7 @@
 	--syn-string: #2c6b4f;
 	--syn-number: #7a5aa8;
 	--syn-type: #1f5673;
+	--backdrop: rgb(20 22 26 / 0.74);
 
 	color-scheme: light;
 
@@ -64,6 +65,7 @@
 		--syn-string: #7fbf9a;
 		--syn-number: #b79ae0;
 		--syn-type: #79b0cc;
+		--backdrop: rgb(6 7 9 / 0.82);
 
 		color-scheme: dark;
 	}
@@ -83,6 +85,7 @@
 	--syn-string: #7fbf9a;
 	--syn-number: #b79ae0;
 	--syn-type: #79b0cc;
+	--backdrop: rgb(6 7 9 / 0.82);
 
 	color-scheme: dark;
 }
@@ -809,6 +812,69 @@ a {
 
 .callout[data-kind='warning'] .callout-label,
 .callout[data-kind='caution'] .callout-label {
+	color: var(--accent);
+}
+
+/* ---------- enlarged image ---------- */
+
+/* Only images the script has upgraded advertise themselves as clickable. */
+.prose img.zoomable {
+	cursor: zoom-in;
+}
+
+/* A <dialog> rather than a hand-rolled overlay: focus trapping, Escape to
+   close and the backdrop all come from the element itself. */
+.lightbox {
+	max-width: min(94vw, 1200px);
+	max-height: 92vh;
+	margin: auto;
+	padding: clamp(10px, 1.6vw, 18px);
+	border: 1px solid var(--ink);
+	background: var(--paper);
+	color: var(--ink);
+	overflow: auto;
+}
+
+.lightbox::backdrop {
+	background: var(--backdrop);
+}
+
+.lightbox img {
+	display: block;
+	max-width: 100%;
+	max-height: calc(92vh - 90px);
+	width: auto;
+	height: auto;
+	margin: 0 auto;
+	border: 1px solid var(--hair);
+}
+
+.lightbox-caption {
+	font-family: var(--mono);
+	font-size: 0.62rem;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+	color: var(--ink-3);
+	margin: 12px 4px 2px;
+	max-width: 80ch;
+}
+
+.lightbox-close {
+	display: block;
+	margin: 0 0 8px auto;
+	appearance: none;
+	background: none;
+	border: 0;
+	padding: 0 2px;
+	font-family: var(--mono);
+	font-size: 1rem;
+	line-height: 1;
+	color: var(--ink-3);
+	cursor: pointer;
+	transition: color 0.18s;
+}
+
+.lightbox-close:hover {
 	color: var(--accent);
 }
 
