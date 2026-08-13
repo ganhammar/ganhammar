@@ -35,18 +35,27 @@ reader must not miss stays in the flow where it interrupts them.
 
 ## Placement
 
-A margin note aligns with the block that **follows** it, so write it directly
-above the paragraph it should sit beside:
+Write the note **after** the paragraph it comments on, which is the order it
+has to be read in on a phone:
 
 ```markdown
-> [!NOTE]
-> This appears beside the next paragraph.
-
 The paragraph the note is about.
+
+> [!NOTE]
+> This appears beside the paragraph above it.
 ```
 
+At parse time the paragraph and the note are grouped, and on a wide screen the
+note is positioned against that pair, so it lines up with the top of its
+paragraph rather than drifting down to whatever comes next.
+
+Only paragraphs are paired. A note written after a list or a code block is left
+to float, which puts it level with the block after it, because aligning to the
+top of a long listing would drag it well above where it was written. Put the
+note after a paragraph if you want it beside one.
+
 Below 1080px there is no margin to put anything in, so notes fold back into the
-text as bordered blocks in the position they were written.
+text as bordered blocks, still after their paragraph.
 
 ## Optional label
 
@@ -71,51 +80,3 @@ POSTS_DIR=../ganhammar-posts npm run build && npm run preview:static
 ```
 
 The same variable works for `npm run dev`.
-
-## Proposed notes for the existing posts
-
-Seven notes drawn from the current archive, each saying something the post does
-not already say. They are anchored to a line of existing text; the note goes
-immediately after it unless stated otherwise.
-
-**dotnet-8-aot-aws-lambda.mdx**
-
-1. After "…we're going to target `linux-x64`…" — that x64 is a consequence of
-   the runner, and an ARM64 runner would let you target `linux-arm64` with
-   `Architecture.ARM_64` for cheaper invocations.
-2. Before "3. **Reflection and Dynamic Loading**" (a `TIP`) — publishing with
-   `-p:PublishAot=true` and reading the trim warnings is the fastest way to
-   find out whether AOT is realistic for an existing project.
-
-**api-routing-using-cloudfront-function.mdx**
-
-3. After "The function must use the JavaScript runtime 2.0." — the `cloudfront`
-   module that exposes `updateRequestOrigin` does not exist in the 1.0 runtime,
-   which is why the version matters.
-
-**lambda-at-edge-authorizer.mdx**
-
-4. After the two-templates paragraph — deleting an edge function is also a
-   two-step affair, because CloudFront replicates the removal to every location
-   before the stack will come down.
-
-**fine-grained-authorization-with-amazon-cognito.mdx**
-
-5. After the note about missing Pre Token Generation V2 types — once they land
-   in `@types/aws-lambda` the local declarations become a conflicting
-   duplicate, so it is worth re-checking.
-
-**building-a-centaur-chess-app-…mdx**
-
-6. After "Sessions can persist for up to 8 hours…" — billing follows the
-   session rather than the request, so a game with long pauses pays for idle
-   time.
-
-**blazingly-fast-serverless-note-app-part-2.mdx**
-
-7. After the `wasm-tools` instruction — the workload is tied to the SDK feature
-   band and has to be reinstalled after an SDK upgrade.
-
-These live in the posts repository, so they are not applied by anything in this
-repo. `margin-notes.patch` (handed over alongside this change) applies all
-seven with `git apply`.

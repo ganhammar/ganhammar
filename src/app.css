@@ -751,6 +751,26 @@ a {
  * the block that follows it, so it is written just before the paragraph it
  * belongs beside.
  */
+/* A note written after a paragraph is grouped with it during parsing, so it
+   can be positioned against that paragraph rather than floating down to
+   whatever follows. Reading order on a narrow screen is unaffected: the note
+   is still after its paragraph in the document. */
+.noted {
+	position: relative;
+}
+
+.noted > .sidenote {
+	position: absolute;
+	top: 0;
+	left: calc(100% + var(--gutter));
+	float: none;
+	clear: none;
+	margin: 0;
+}
+
+/* Notes that follow something other than a paragraph are left floating, which
+   aligns them with the block after rather than dragging them to the top of a
+   long list or listing. */
 .sidenote {
 	float: right;
 	clear: right;
@@ -999,7 +1019,9 @@ a {
 /* ---------- responsive ---------- */
 
 @media (max-width: 1080px) {
-	.sidenote {
+	.sidenote,
+	.noted > .sidenote {
+		position: static;
 		float: none;
 		width: auto;
 		margin: 1.5em 0;

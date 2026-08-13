@@ -1,4 +1,4 @@
-import { Marked, type TokenizerAndRendererExtension, type Tokens } from 'marked';
+import { Marked, type Token, type TokenizerAndRendererExtension, type Tokens } from 'marked';
 import { parse as parseYaml } from 'yaml';
 import { common, createLowlight } from 'lowlight';
 import { toHtml } from 'hast-util-to-html';
@@ -79,6 +79,58 @@ const alertExtension: TokenizerAndRendererExtension = {
 	}
 };
 
+/**
+ * Holds a paragraph and the margin note written after it.
+ *
+ * Authors write a note after the thing it comments on, which is the order it
+ * has to be read in on a narrow screen. On a wide one the note belongs beside
+ * that paragraph, and a float can only align itself to whatever follows it. So
+ * the two are grouped here and the note is positioned against the group.
+ *
+ * Only paragraphs are paired. Aligning to the top of a long list or code block
+ * would drag the note far above where it was written, so those keep floating.
+ */
+const NOTE_PAIR = 'notePair';
+
+const notePairExtension: TokenizerAndRendererExtension = {
+	name: NOTE_PAIR,
+	level: 'block',
+	// Never matched from source; the pass below is the only thing that builds it.
+	tokenizer() {
+		return undefined;
+	},
+	renderer(token) {
+		return `<div class="noted">${this.parser.parse(token.tokens ?? [])}</div>`;
+	}
+};
+
+function pairMarginNotes(tokens: Token[]): Token[] {
+	const out: Token[] = [];
+
+	for (const token of tokens) {
+		const alert = token as Token & { kind?: string };
+		const isMarginNote = token.type === 'alert' && MARGIN_KINDS.has(alert.kind ?? '');
+
+		// Blank lines between blocks arrive as their own tokens.
+		let index = out.length - 1;
+		while (index >= 0 && out[index].type === 'space') index--;
+		const target = index >= 0 ? out[index] : undefined;
+
+		if (isMarginNote && target?.type === 'paragraph') {
+			out[index] = {
+				type: NOTE_PAIR,
+				raw: target.raw + token.raw,
+				tokens: [target, token]
+			} as unknown as Token;
+			continue;
+		}
+
+		out.push(token);
+	}
+
+	return out;
+}
+
 function slugify(text: string): string {
 	return text
 		.toLowerCase()
@@ -136,7 +188,7 @@ export function parseMarkdown(raw: string, options: ParseOptions = {}): ParsedPo
 
 	const marked = new Marked({ gfm: true });
 	marked.use({
-		extensions: [alertExtension],
+		extensions: [alertExtension, notePairExtension],
 		renderer: {
 			code({ text, lang }) {
 				const language = lang?.split(/\s+/)[0];
@@ -210,7 +262,9 @@ export function parseMarkdown(raw: string, options: ParseOptions = {}): ParsedPo
 	// the wording matches the frontmatter exactly.
 	const withoutDuplicateTitle = body.replace(/^\s*#\s+.+?\r?\n/, '');
 
-	const content = marked.parse(withoutDuplicateTitle) as string;
+	const content = marked.parser(
+		pairMarginNotes(marked.lexer(withoutDuplicateTitle))
+	) as string;
 	const words = withoutDuplicateTitle.replace(/```[\s\S]*?```/g, '').split(/\s+/).length;
 
 	return {

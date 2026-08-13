@@ -211,6 +211,24 @@ await check('images can be enlarged, and only where that can work', async () => 
 	assert.doesNotMatch(prose.slice(0, 4000), /<img[^>]*zoomable/, 'no baked-in class');
 });
 
+await check('a margin note is grouped with the paragraph above it', async () => {
+	const { body } = await get('/posts/dotnet-8-aot-aws-lambda');
+
+	// The pair exists, and the note is inside it, after its paragraph. Reading
+	// order is what a narrow screen falls back to, so it has to stay this way.
+	const pair = body.match(/<div class="noted">([\s\S]*?)<\/div>/);
+	assert.ok(pair, 'expected a paragraph and note grouped together');
+	assert.ok(
+		pair[1].indexOf('<p>') < pair[1].indexOf('class="sidenote"'),
+		'the note must follow its paragraph in the document'
+	);
+
+	// Positioned against the pair on wide screens, back in the flow on narrow.
+	assert.match(body, /\.noted>\.sidenote\{[^}]*position:absolute/);
+	assert.match(body, /\.noted>\.sidenote\{[^}]*top:0/);
+	assert.match(body, /@media[^{]*\(width<[^)]*\)\{[\s\S]*?\.noted>\.sidenote/);
+});
+
 await check('feeds are generated', async () => {
 	const sitemap = await get('/sitemap.xml');
 	assert.equal(sitemap.status, 200);
