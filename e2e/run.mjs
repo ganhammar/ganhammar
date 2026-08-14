@@ -4,6 +4,8 @@
 // fetches pages the way a browser would. Run after `npm run build`; it needs
 // no credentials, because the GitHub calls all happened during the build.
 import assert from 'node:assert/strict';
+import { readdir } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import { listen, rewrite } from './serve.mjs';
 
 const { server, port } = await listen();
@@ -151,22 +153,55 @@ await check('images declare their dimensions', async () => {
 	}
 });
 
-await check('a draft is reachable by url but kept out of everything else', async () => {
-	const slug = 'who-approved-this-delegated-authorization-for-ai-agents';
+// Derived from the build rather than named here: a post's status changes, and
+// a check pinned to one slug fails the moment that post is published, which is
+// exactly when a deploy must not be blocked.
+async function postSlugs() {
+	const dir = fileURLToPath(new URL('../build/posts', import.meta.url));
+	const files = await readdir(dir);
+	return files.filter((name) => name.endsWith('.html')).map((name) => name.replace(/\.html$/, ''));
+}
 
-	const { status, body } = await get(`/posts/${slug}`);
-	assert.equal(status, 200, 'a draft should still render at its own url');
-	assert.match(body, /class="prose"/, 'draft body should be rendered');
-	assert.match(body, /name="robots" content="noindex, nofollow"/, 'draft must not be indexable');
-	assert.doesNotMatch(body, /BlogPosting/, 'a draft should not claim to be a published article');
+await check('drafts render but stay out of the index, sitemap and feed', async () => {
+	const slugs = await postSlugs();
+	assert.ok(slugs.length > 0, 'expected some posts');
 
-	assert.doesNotMatch((await get('/')).body, new RegExp(slug), 'draft must not be listed');
-	assert.doesNotMatch((await get('/sitemap.xml')).body, new RegExp(slug), 'not in the sitemap');
-	assert.doesNotMatch((await get('/rss.xml')).body, new RegExp(slug), 'not in the feed');
+	const index = (await get('/')).body;
+	const sitemap = (await get('/sitemap.xml')).body;
+	const feed = (await get('/rss.xml')).body;
 
-	// Neighbouring published posts must not link into it either.
-	const newest = await get('/posts/building-a-centaur-chess-app-with-agentcore-runtime-and-strands-agents');
-	assert.doesNotMatch(newest.body, new RegExp(slug), 'published posts should not link to a draft');
+	let drafts = 0;
+
+	for (const slug of slugs) {
+		const { status, body } = await get(`/posts/${slug}`);
+		assert.equal(status, 200, `${slug} should render`);
+
+		const hidden = /name="robots" content="noindex/.test(body);
+		const listed = new RegExp(`/posts/${slug}[^a-z0-9-]`).test(index);
+
+		if (hidden) {
+			drafts++;
+			assert.match(body, /class="prose"/, `${slug} should still render its body`);
+			assert.doesNotMatch(body, /BlogPosting/, `${slug} should not claim to be published`);
+			assert.ok(!listed, `${slug} is noindex but listed on the index`);
+			assert.ok(!sitemap.includes(`/posts/${slug}<`), `${slug} is noindex but in the sitemap`);
+			assert.ok(!feed.includes(`/posts/${slug}<`), `${slug} is noindex but in the feed`);
+		} else {
+			assert.ok(listed, `${slug} is indexable but missing from the index`);
+			assert.ok(sitemap.includes(`/posts/${slug}<`), `${slug} is indexable but not in the sitemap`);
+		}
+	}
+
+	console.log(`     (${slugs.length} posts, ${drafts} draft${drafts === 1 ? '' : 's'})`);
+});
+
+await check('entry numbers count down the page', async () => {
+	const index = (await get('/')).body;
+	const numbers = [...index.matchAll(/class="entry-num">(\d+)</g)].map((m) => Number(m[1]));
+	assert.ok(numbers.length > 1, 'expected several entries');
+
+	const descending = [...numbers].sort((a, b) => b - a);
+	assert.deepEqual(numbers, descending, `numbers should descend, got ${numbers.join(' ')}`);
 });
 
 await check('published posts are indexable', async () => {

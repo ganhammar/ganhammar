@@ -163,13 +163,13 @@ export async function getPosts(): Promise<Post[]> {
 		});
 
 	// The number is assigned oldest-first so a post keeps it for good. Display
-	// order is newest-first, but posts sharing a date stay in publication order
-	// so a two-parter reads part one before part two.
+	// is the reverse throughout, including for posts sharing a date, so the
+	// numbers always count down the page rather than jumping about.
 	return published
 		.map((post, i) => ({ ...post, entry: i + 1 }))
 		.sort((a, b) => {
 			const byDate = new Date(b.date).getTime() - new Date(a.date).getTime();
-			return byDate !== 0 ? byDate : a.entry - b.entry;
+			return byDate !== 0 ? byDate : b.entry - a.entry;
 		});
 }
 
