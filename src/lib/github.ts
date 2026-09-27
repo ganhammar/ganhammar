@@ -258,6 +258,21 @@ export async function getAssetSizes(): Promise<Map<string, Dimensions>> {
 	return sizes;
 }
 
+/** The markup of every SVG asset, keyed as getAssetNames keys them. */
+export async function getSvgSources(): Promise<Map<string, string>> {
+	const names = (await getAssetNames()).filter((name) => /\.svg$/i.test(name));
+	const decoder = new TextDecoder();
+	const sources = new Map<string, string>();
+
+	await Promise.all(
+		names.map(async (name) => {
+			sources.set(name, decoder.decode((await getAsset(name)).body));
+		})
+	);
+
+	return sources;
+}
+
 export async function getAsset(name: string): Promise<Asset> {
 	// Keep any subdirectory, drop a leading ./ or assets/, and refuse to climb
 	// out of the assets folder.
