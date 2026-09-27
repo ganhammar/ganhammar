@@ -690,6 +690,19 @@ a {
 	border: 1px solid var(--hair);
 }
 
+/* An SVG asset is inlined by the markdown renderer so its styles can read the
+   colour tokens above and follow the theme. It sits in the flow like an image. */
+.prose .diagram {
+	margin: 1.8em 0;
+	border: 1px solid var(--hair);
+}
+
+.prose .diagram svg {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
 /* A GIF served as H.264: silent, looping, autoplaying, so it behaves as the
    original did. Whether it actually plays is decided in app.html, which adds
    controls if the browser or the reader's motion setting says no. */

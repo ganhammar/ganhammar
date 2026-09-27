@@ -38,6 +38,18 @@ entry number until it is published.
    repo, which does the same thing without a content change.
 3. Failing both, the site rebuilds on a schedule at 05:17 UTC daily.
 
+## Diagrams
+
+An `.svg` asset referenced with `![alt](./assets/name.svg)` is written into the
+page rather than linked, so its styles can use the site's colour tokens
+(`var(--paper)`, `var(--ink)`, `var(--accent)` and so on) and follow the theme
+switch. GitHub and the cross-posts still see an ordinary image, so give every
+colour a light fallback, `var(--ink, #14161a)`, and a `prefers-color-scheme`
+block for the standalone case.
+
+The file's `<style>` becomes document-wide once inlined, so scope every rule to
+the root element's id. The alt text becomes the diagram's accessible label.
+
 ## Checking a draft before pushing
 
 ```bash

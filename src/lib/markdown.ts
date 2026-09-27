@@ -179,6 +179,8 @@ export type ParseOptions = {
 	assetSizes?: Map<string, Dimensions>;
 	/** Every published asset, used to spot a video beside an animated GIF. */
 	assetNames?: Set<string>;
+	/** The markup of every SVG asset, keyed as assetNames keys them. */
+	svgSources?: Map<string, string>;
 };
 
 export function parseMarkdown(raw: string, options: ParseOptions = {}): ParsedPost {
@@ -221,10 +223,22 @@ export function parseMarkdown(raw: string, options: ParseOptions = {}): ParsedPo
 					src = `/posts/assets/${asset}`;
 				}
 
+				const alt = escapeHtml(text || '');
+
+				// An SVG is written into the page rather than linked, so the styles
+				// inside it can read the site's colour tokens and follow the theme
+				// switch. An <img> renders in its own document and sees neither.
+				// The file's own style block is document-wide once inlined, so
+				// its rules are scoped to the root element's id.
+				const svg = asset ? options.svgSources?.get(asset) : undefined;
+				if (svg) {
+					const markup = svg.replace(/^\s*<\?xml[^>]*>\s*/, '');
+					return `<div class="diagram" role="img" aria-label="${alt}">${markup}</div>`;
+				}
+
 				const size = asset ? options.assetSizes?.get(asset) : undefined;
 				const dimensions = size ? ` width="${size.width}" height="${size.height}"` : '';
 				const titleAttr = imgTitle ? ` title="${escapeHtml(imgTitle)}"` : '';
-				const alt = escapeHtml(text || '');
 
 				// An animated GIF is served as H.264 when an .mp4 of the same name
 				// has been committed beside it. The post still says `![](...gif)`,

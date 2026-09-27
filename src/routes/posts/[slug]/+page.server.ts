@@ -1,4 +1,11 @@
-import { getAllSlugs, getAssetNames, getAssetSizes, getPosts, getPostSource } from '$lib/github';
+import {
+	getAllSlugs,
+	getAssetNames,
+	getAssetSizes,
+	getPosts,
+	getPostSource,
+	getSvgSources
+} from '$lib/github';
 import { SITE_URL } from '$lib/site';
 import { parseMarkdown } from '$lib/markdown';
 import { error } from '@sveltejs/kit';
@@ -23,7 +30,8 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	const parsed = parseMarkdown(source, {
 		assetSizes: await getAssetSizes(),
-		assetNames: new Set(await getAssetNames())
+		assetNames: new Set(await getAssetNames()),
+		svgSources: await getSvgSources()
 	});
 
 	const draft = parsed.status !== 'published';
