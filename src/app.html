@@ -36,8 +36,9 @@
 		<!--
 			Pages ship without the SvelteKit client runtime, so every behaviour the
 			site has lives in the inline scripts below: the theme switch, the image
-			lightbox, the video autoplay fallback and the contents rail. Each one
-			exits immediately on a page that has nothing for it to do.
+			lightbox, the video autoplay fallback, the landing figure's idle
+			animation and the contents rail. Each one exits immediately on a page
+			that has nothing for it to do.
 		-->
 		<script>
 			// The theme switch. The stored value wins over the system setting in
@@ -194,6 +195,184 @@
 						});
 					}
 				});
+			})();
+
+			// The landing figure, played now and then while the reader idles. A
+			// request runs down the centreline, each plate drops onto the next as
+			// it arrives, and once it reaches the bottom the stack springs apart
+			// again. Nothing runs for a reader who asks for less motion, and the
+			// idle clock only counts while the figure is on screen.
+			(function () {
+				var svg = document.querySelector('[data-assembly]');
+				if (!svg || typeof svg.animate !== 'function') return;
+
+				var FIRST_IDLE = 25000;
+				var REPEAT_IDLE = 60000;
+				var LEAD_IN = 250;
+				var STEP = 520;
+				var DROP = 320;
+				var HOLD = 650;
+				var EXPLODE = 1000;
+				var SETTLE = 350;
+
+				var calm = window.matchMedia('(prefers-reduced-motion: reduce)');
+				var gap = Number(svg.dataset.gap);
+				var fall = gap - Number(svg.dataset.thickness);
+
+				function all(attribute) {
+					var found = [];
+					Array.prototype.forEach.call(svg.querySelectorAll('[' + attribute + ']'), function (el) {
+						found[Number(el.getAttribute(attribute))] = el;
+					});
+					return found;
+				}
+
+				var plates = all('data-plate');
+				var callouts = all('data-callout');
+				var arrows = all('data-arrow');
+				var numerals = all('data-numeral');
+				var pulse = svg.querySelector('[data-pulse]');
+				var last = plates.length - 1;
+
+				// Every part runs on one clock, so keyframes are placed in
+				// milliseconds and converted to offsets against the total.
+				var arrive = [];
+				for (var k = 0; k <= last; k++) arrive.push(LEAD_IN + k * STEP);
+				var explode = arrive[last] + DROP + HOLD;
+				var total = explode + EXPLODE + SETTLE;
+				var at = function (ms) {
+					return ms / total;
+				};
+
+				var dropIn = 'cubic-bezier(0.5, 0, 0.9, 0.5)';
+				var springOut = 'cubic-bezier(0.3, 1.35, 0.6, 1)';
+				var glide = 'cubic-bezier(0.45, 0, 0.55, 1)';
+
+				function plateFrames(i) {
+					var frames = [{ offset: 0, transform: 'translateY(0)' }];
+					for (var k = i + 1; k <= last; k++) {
+						frames.push({ offset: at(arrive[k]), transform: 'translateY(' + (k - 1 - i) * fall + 'px)', easing: dropIn });
+						frames.push({ offset: at(arrive[k] + DROP), transform: 'translateY(' + (k - i) * fall + 'px)' });
+					}
+					frames.push({ offset: at(explode), transform: 'translateY(' + (last - i) * fall + 'px)', easing: springOut });
+					frames.push({ offset: at(explode + EXPLODE), transform: 'translateY(0)' });
+					frames.push({ offset: 1, transform: 'translateY(0)' });
+					return frames;
+				}
+
+				// A callout and the arrow under its plate fade as the plate leaves
+				// its drawn position, and return once the stack has come apart.
+				function fadeFrames(i) {
+					var leave = arrive[i + 1];
+					return [
+						{ offset: 0, opacity: 1 },
+						{ offset: at(leave), opacity: 1 },
+						{ offset: at(leave + DROP * 0.6), opacity: 0 },
+						{ offset: at(explode + EXPLODE * 0.6), opacity: 0 },
+						{ offset: at(explode + EXPLODE + SETTLE), opacity: 1 },
+						{ offset: 1, opacity: 1 }
+					];
+				}
+
+				function pulseFrames() {
+					var frames = [{ offset: 0, opacity: 0, transform: 'translateY(0)' }];
+					arrive.forEach(function (ms, k) {
+						frames.push({ offset: at(ms), opacity: 1, transform: 'translateY(' + k * gap + 'px)', easing: glide });
+					});
+					frames.push({ offset: at(arrive[last] + DROP), opacity: 0, transform: 'translateY(' + last * gap + 'px)' });
+					frames.push({ offset: 1, opacity: 0, transform: 'translateY(' + last * gap + 'px)' });
+					return frames;
+				}
+
+				// A plate and its numeral turn red as the request reaches them, stay
+				// red while the stack holds, and fade back as it comes apart.
+				function markFrames(k, property, ink, accent) {
+					var frame = function (offset, colour) {
+						var f = { offset: offset };
+						f[property] = colour;
+						return f;
+					};
+					return [
+						frame(0, ink),
+						frame(at(arrive[k]), ink),
+						frame(at(arrive[k] + 150), accent),
+						frame(at(explode), accent),
+						frame(at(explode + EXPLODE), ink),
+						frame(1, ink)
+					];
+				}
+
+				var running = false;
+
+				function play() {
+					if (calm.matches) return Promise.resolve();
+					running = true;
+
+					var timing = { duration: total, easing: 'linear' };
+					var accent = getComputedStyle(pulse).fill;
+					var numeralInk = getComputedStyle(numerals[0]).fill;
+					var edgeInk = getComputedStyle(plates[0].querySelector('polygon')).stroke;
+					var runs = [pulse.animate(pulseFrames(), timing)];
+
+					for (var i = 0; i < last; i++) {
+						runs.push(plates[i].animate(plateFrames(i), timing));
+						runs.push(callouts[i].animate(fadeFrames(i), timing));
+						runs.push(arrows[i].animate(fadeFrames(i), timing));
+					}
+					numerals.forEach(function (numeral, k) {
+						runs.push(numeral.animate(markFrames(k, 'fill', numeralInk, accent), timing));
+					});
+					plates.forEach(function (plate, k) {
+						Array.prototype.forEach.call(plate.querySelectorAll('polygon'), function (face) {
+							runs.push(face.animate(markFrames(k, 'stroke', edgeInk, accent), timing));
+						});
+					});
+
+					return Promise.all(
+						runs.map(function (run) {
+							return run.finished;
+						})
+					).then(
+						function () {
+							running = false;
+						},
+						function () {
+							running = false;
+						}
+					);
+				}
+
+				var timer = null;
+				var wait = FIRST_IDLE;
+				var inView = false;
+
+				function arm() {
+					clearTimeout(timer);
+					if (running || document.hidden || !inView) return;
+					timer = setTimeout(function () {
+						play().then(function () {
+							wait = REPEAT_IDLE;
+							arm();
+						});
+					}, wait);
+				}
+
+				['pointermove', 'pointerdown', 'keydown', 'scroll', 'wheel', 'touchstart'].forEach(
+					function (type) {
+						window.addEventListener(type, arm, { passive: true });
+					}
+				);
+				document.addEventListener('visibilitychange', arm);
+
+				if ('IntersectionObserver' in window) {
+					new IntersectionObserver(function (entries) {
+						inView = entries[entries.length - 1].isIntersecting;
+						arm();
+					}).observe(svg);
+				} else {
+					inView = true;
+					arm();
+				}
 			})();
 
 			(function () {

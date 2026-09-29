@@ -79,34 +79,61 @@
 	const viewBox = `${bounds.x.toFixed(1)} ${bounds.y.toFixed(1)} ${(bounds.right - bounds.x).toFixed(1)} ${(bounds.bottom - bounds.y).toFixed(1)}`;
 </script>
 
+<!--
+	The inline script in app.html plays the assembly animation when the reader
+	idles. It reads the geometry from the data attributes: every plate that
+	joins the stack drops by one gap less one plate thickness.
+-->
 <figure class="figure">
-	<svg {viewBox} role="img" aria-label="Exploded view of the delivery path for a page request">
+	<svg
+		{viewBox}
+		role="img"
+		aria-label="Exploded view of the delivery path for a page request"
+		data-assembly
+		data-gap={GAP}
+		data-thickness={T}
+	>
 		<g class="centreline">
 			<line x1={CX} y1={top} x2={CX} y2={bottom} />
 		</g>
 
 		{#each plates as plate (plate.n)}
-			<polygon class="plate-side" points={plate.left} />
-			<polygon class="plate-side" points={plate.right} />
-			<polygon class="plate-top" points={plate.top} />
+			{#if plate.arrow}
+				<g data-arrow={plate.n - 1}>
+					<path class="flow" d="M{CX},{plate.arrow.top.toFixed(1)} L{CX},{plate.arrow.tip.toFixed(1)}" />
+					<path
+						class="marker"
+						d="M{CX - 3.4},{(plate.arrow.tip - 5).toFixed(1)} L{CX + 3.4},{(
+							plate.arrow.tip - 5
+						).toFixed(1)} L{CX},{plate.arrow.tip.toFixed(1)} Z"
+					/>
+				</g>
+			{/if}
+		{/each}
 
-			<path class="leader" d={plate.leader} />
-			<circle class="marker" cx={plate.dot[0]} cy={plate.dot[1]} r="2.1" />
-			<text class="numeral" x={LEADER_X + 9} y={plate.labelY - 13}>{plate.n}</text>
+		<!-- Drawn bottom up, so a plate seated on the stack covers the one below. -->
+		{#each [...plates].reverse() as plate (plate.n)}
+			<g data-plate={plate.n - 1}>
+				<polygon class="plate-side" points={plate.left} />
+				<polygon class="plate-side" points={plate.right} />
+				<polygon class="plate-top" points={plate.top} />
+			</g>
+		{/each}
+
+		{#each plates as plate (plate.n)}
+			<g data-callout={plate.n - 1}>
+				<path class="leader" d={plate.leader} />
+				<circle class="marker" cx={plate.dot[0]} cy={plate.dot[1]} r="2.1" />
+			</g>
+			<text class="numeral" x={LEADER_X + 9} y={plate.labelY - 13} data-numeral={plate.n - 1}
+				>{plate.n}</text
+			>
 			<text class="part-label" x={LEADER_X + 9} y={plate.labelY + 3}>
 				{plate.label.toUpperCase()}
 			</text>
-
-			{#if plate.arrow}
-				<path class="flow" d="M{CX},{plate.arrow.top.toFixed(1)} L{CX},{plate.arrow.tip.toFixed(1)}" />
-				<path
-					class="marker"
-					d="M{CX - 3.4},{(plate.arrow.tip - 5).toFixed(1)} L{CX + 3.4},{(
-						plate.arrow.tip - 5
-					).toFixed(1)} L{CX},{plate.arrow.tip.toFixed(1)} Z"
-				/>
-			{/if}
 		{/each}
+
+		<circle class="pulse" cx={CX} cy={CY0} r="3.4" data-pulse />
 	</svg>
 	<figcaption><b>Fig. 1</b> — Delivery path, request descending</figcaption>
 </figure>
@@ -150,6 +177,11 @@
 
 	.marker {
 		fill: var(--ink);
+	}
+
+	.pulse {
+		fill: var(--accent);
+		opacity: 0;
 	}
 
 	.numeral {
