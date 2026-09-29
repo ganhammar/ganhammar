@@ -197,23 +197,24 @@
 				});
 			})();
 
-			// The landing figure, played now and then while the reader idles. A
-			// request runs down the centreline, each plate drops onto the next as
-			// it arrives, and once it reaches the bottom the stack springs apart
-			// again. Nothing runs for a reader who asks for less motion, and the
-			// idle clock only counts while the figure is on screen.
+			// The landing figure, played now and then while the reader stays on the
+			// page. A request runs down the centreline, each plate drops onto the
+			// next as it arrives, and once it reaches the bottom the stack springs
+			// apart again. A run that falls due while the figure is off screen or
+			// the tab is hidden is skipped, and nothing runs for a reader who asks
+			// for less motion.
 			(function () {
 				var svg = document.querySelector('[data-assembly]');
 				if (!svg || typeof svg.animate !== 'function') return;
 
-				var FIRST_IDLE = 25000;
-				var REPEAT_IDLE = 60000;
+				var FIRST_DELAY = 12000;
+				var REPEAT_DELAY = 45000;
 				var LEAD_IN = 250;
-				var STEP = 520;
-				var DROP = 320;
-				var HOLD = 650;
-				var EXPLODE = 1000;
-				var SETTLE = 350;
+				var STEP = 560;
+				var DROP = 340;
+				var HOLD = 700;
+				var EXPLODE = 1100;
+				var SETTLE = 370;
 
 				var calm = window.matchMedia('(prefers-reduced-motion: reduce)');
 				var gap = Number(svg.dataset.gap);
@@ -302,11 +303,8 @@
 					];
 				}
 
-				var running = false;
-
 				function play() {
 					if (calm.matches) return Promise.resolve();
-					running = true;
 
 					var timing = { duration: total, easing: 'linear' };
 					var accent = getComputedStyle(pulse).fill;
@@ -332,47 +330,30 @@
 						runs.map(function (run) {
 							return run.finished;
 						})
-					).then(
-						function () {
-							running = false;
-						},
-						function () {
-							running = false;
-						}
-					);
+					).catch(function () {
+						/* a cancelled run still lets the next one be scheduled */
+					});
 				}
 
-				var timer = null;
-				var wait = FIRST_IDLE;
-				var inView = false;
+				var inView = !('IntersectionObserver' in window);
 
-				function arm() {
-					clearTimeout(timer);
-					if (running || document.hidden || !inView) return;
-					timer = setTimeout(function () {
-						play().then(function () {
-							wait = REPEAT_IDLE;
-							arm();
-						});
-					}, wait);
-				}
-
-				['pointermove', 'pointerdown', 'keydown', 'scroll', 'wheel', 'touchstart'].forEach(
-					function (type) {
-						window.addEventListener(type, arm, { passive: true });
-					}
-				);
-				document.addEventListener('visibilitychange', arm);
-
-				if ('IntersectionObserver' in window) {
+				if (!inView) {
 					new IntersectionObserver(function (entries) {
 						inView = entries[entries.length - 1].isIntersecting;
-						arm();
 					}).observe(svg);
-				} else {
-					inView = true;
-					arm();
 				}
+
+				// The next run is timed from the end of the last one.
+				function schedule(delay) {
+					setTimeout(function () {
+						var run = inView && !document.hidden ? play() : Promise.resolve();
+						run.then(function () {
+							schedule(REPEAT_DELAY);
+						});
+					}, delay);
+				}
+
+				schedule(FIRST_DELAY);
 			})();
 
 			(function () {
