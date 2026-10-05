@@ -49,8 +49,10 @@ await check('index lists every post', async () => {
 
 await check('index ships no framework javascript', async () => {
 	const { body } = await get('/');
+	// The one script the page carries is ourfault's error and traffic reporter, not a client bundle.
+	const withoutReporter = body.replace(/<script src="https:\/\/app\.ourfault\.dev\/browser\/v1\.js"[^>]*><\/script>/, '');
 	assert.doesNotMatch(
-		body,
+		withoutReporter,
 		/<script[^>]+src=/,
 		'a script src appeared; the site is meant to ship no client bundle'
 	);
