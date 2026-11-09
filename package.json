@@ -15,24 +15,24 @@
     "preview:static": "node e2e/serve.mjs"
   },
   "dependencies": {
-    "hast-util-to-html": "^9.0.5",
+    "hast-util-to-html": "^9.0.6",
     "lowlight": "^3.3.0",
-    "marked": "^18.1.1",
+    "marked": "^18.1.3",
     "yaml": "^2.9.1"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.10",
     "@sveltejs/kit": "^2.70.2",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
-    "@types/node": "^26.6.5",
-    "aws-cdk": "^2.1146.0",
-    "aws-cdk-lib": "^2.274.0",
+    "@types/node": "^26.6.6",
+    "aws-cdk": "^2.1148.0",
+    "aws-cdk-lib": "^2.275.0",
     "constructs": "^10.8.1",
-    "svelte": "^5.57.2",
-    "svelte-check": "^4.7.7",
+    "svelte": "^5.57.3",
+    "svelte-check": "^4.7.8",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
-    "vite": "^8.3.5"
+    "vite": "^8.3.6"
   },
   "engines": {
     "node": ">=20.0.0"
